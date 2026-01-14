@@ -141,8 +141,8 @@ export default function AdminAchievementsPage() {
                     achievements.map((achievement) => (
                         <Card key={achievement._id} className="glass border-white/5 rounded-[2.5rem] p-8 flex flex-col justify-between group relative overflow-hidden">
                             <div className={`absolute top-0 right-0 p-2 text-[8px] font-black uppercase tracking-widest ${achievement.rarity === 'legendary' ? 'bg-yellow-400/20 text-yellow-400' :
-                                    achievement.rarity === 'epic' ? 'bg-purple-400/20 text-purple-400' :
-                                        achievement.rarity === 'rare' ? 'bg-blue-400/20 text-blue-400' : 'bg-white/10 text-slate-400'
+                                achievement.rarity === 'epic' ? 'bg-purple-400/20 text-purple-400' :
+                                    achievement.rarity === 'rare' ? 'bg-blue-400/20 text-blue-400' : 'bg-white/10 text-slate-400'
                                 }`}>
                                 {achievement.rarity}
                             </div>
@@ -203,17 +203,32 @@ export default function AdminAchievementsPage() {
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <label className="text-xs font-black uppercase text-muted-foreground ml-1">Biểu tượng</label>
-                                <select
-                                    value={formData.icon}
-                                    onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
-                                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-3 outline-none focus:border-primary"
-                                >
-                                    {ICONS.map(i => <option key={i} value={i}>{i}</option>)}
-                                </select>
+                            <div className="space-y-2 col-span-2">
+                                <label className="text-xs font-black uppercase text-muted-foreground ml-1">Biểu tượng (Emoji hoặc Icon name)</label>
+                                <div className="space-y-4">
+                                    <input
+                                        value={formData.icon}
+                                        onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
+                                        className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-3 outline-none focus:border-primary transition-colors text-2xl text-center"
+                                        placeholder="🏆"
+                                        required
+                                    />
+                                    <div className="flex flex-wrap gap-2 p-3 glass rounded-2xl border-white/5">
+                                        {ICONS.map(i => (
+                                            <button
+                                                key={i}
+                                                type="button"
+                                                onClick={() => setFormData({ ...formData, icon: i })}
+                                                className={`w-10 h-10 flex items-center justify-center rounded-xl transition-all ${formData.icon === i ? 'bg-primary text-white scale-110 neo-shadow' : 'bg-white/5 hover:bg-white/10'
+                                                    }`}
+                                            >
+                                                {i}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
                             </div>
-                            <div className="space-y-2">
+                            <div className="space-y-2 col-span-2">
                                 <label className="text-xs font-black uppercase text-muted-foreground ml-1">Độ hiếm</label>
                                 <select
                                     value={formData.rarity}
@@ -259,6 +274,6 @@ export default function AdminAchievementsPage() {
                     </form>
                 </DialogContent>
             </Dialog>
-        </div>
+        </div >
     );
 }
