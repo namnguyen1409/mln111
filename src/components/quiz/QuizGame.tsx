@@ -109,6 +109,13 @@ export default function QuizGame({ quiz }: QuizProps) {
                         title: "Hành trình vĩ đại!",
                         description: `Bạn đã được cộng ${xpToAward} EXP vào hồ sơ.`,
                     });
+
+                    // Track daily task progress
+                    fetch('/api/tasks', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ type: 'quiz_complete' })
+                    }).catch(err => console.error("Task tracking failed", err));
                 }
             });
 

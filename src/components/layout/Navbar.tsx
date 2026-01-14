@@ -74,6 +74,12 @@ export default function Navbar() {
                                 )}
                             </div>
                             <div className="h-px bg-white/5 my-1" />
+                            <Link href="/profile">
+                                <Button variant="ghost" className="w-full justify-start gap-3 rounded-xl hover:bg-white/5">
+                                    <User className="w-4 h-4" /> Trang cá nhân
+                                </Button>
+                            </Link>
+
                             {(session.user as any).isAdmin && (
                                 <Link href="/admin">
                                     <Button variant="ghost" className="w-full justify-start gap-3 rounded-xl hover:bg-white/5">

@@ -7,6 +7,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { ChevronLeft, CheckCircle2, Lightbulb, Info, Share2, Printer, Target } from "lucide-react";
 import Discussion from "@/components/learn/Discussion";
 import { getTopics } from "@/lib/services/topicService";
+import TaskTracking from "@/components/tasks/TaskTracking";
 
 export const revalidate = 3600; // Revalidate every hour
 
@@ -116,6 +117,9 @@ export default async function TopicDetailPage({ params }: { params: Promise<{ sl
                 <div className="pt-12 border-t border-white/5">
                     <Discussion topicSlug={slug} />
                 </div>
+
+                {/* Mission Tracking */}
+                <TaskTracking />
             </div>
         </div>
     );

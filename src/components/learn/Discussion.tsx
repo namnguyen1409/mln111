@@ -78,6 +78,13 @@ export default function Discussion({ topicSlug }: { topicSlug: string }) {
                 setNewComment('');
                 fetchComments(true);
                 toast.success("Thảo luận của bạn đã được gửi!");
+
+                // Track daily task progress
+                fetch('/api/tasks', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ type: 'comment' })
+                }).catch(err => console.error("Task tracking failed", err));
             } else {
                 toast.error("Không thể gửi thảo luận. Thử lại sau!");
             }
