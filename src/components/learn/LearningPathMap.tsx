@@ -47,7 +47,7 @@ export default function LearningPathMap({ topics, completedTopics }: LearningPat
                     return (
                         <div key={topic._id} className={`flex w-full items-center ${isLeft ? 'justify-start' : 'justify-end'} relative`}>
                             {/* Zig-zag Connecting line for mobile/desktop */}
-                            <div className={`absolute top-1/2 -translate-y-1/2 h-0.5 bg-white/5 w-24 hidden md:block ${isLeft ? 'left-full' : 'right-full'}`} />
+                            <div className={`absolute top-1/2 -translate-y-1/2 h-0.5 bg-border w-24 hidden md:block ${isLeft ? 'left-full' : 'right-full'}`} />
 
                             <motion.div
                                 initial={{ opacity: 0, scale: 0.9, x: isLeft ? -20 : 20 }}
@@ -67,8 +67,8 @@ export default function LearningPathMap({ topics, completedTopics }: LearningPat
                                     <div className={`w-40 h-40 md:w-48 md:h-48 rounded-[2.2rem] flex flex-col items-center justify-center p-6 text-center shadow-2xl border-4 transition-all duration-500 ${topic.isUnlocked
                                         ? topic.isCompleted
                                             ? 'bg-primary text-white border-primary/20 neo-shadow'
-                                            : 'glass border-primary/40 bg-white/5 hover:bg-white/10'
-                                        : 'bg-black/40 border-white/5 grayscale pointer-events-none opacity-60'
+                                            : 'glass border-primary/40 bg-muted hover:bg-muted/80'
+                                        : 'bg-muted/60 border-border grayscale pointer-events-none opacity-60'
                                         }`}>
                                         <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-4 ${topic.isCompleted ? 'bg-white/20' : 'bg-primary/20'
                                             }`}>
@@ -108,7 +108,7 @@ export default function LearningPathMap({ topics, completedTopics }: LearningPat
 
                                 {/* Prerequisite tooltip info on hover for locked items */}
                                 {!topic.isUnlocked && (
-                                    <div className="absolute top-full mt-4 left-1/2 -translate-x-1/2 w-48 text-center p-3 glass border-white/5 rounded-xl z-20 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <div className="absolute top-full mt-4 left-1/2 -translate-x-1/2 w-48 text-center p-3 glass border-border rounded-xl z-20 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity">
                                         <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest mb-1">Cần hoàn thành:</p>
                                         {topic.prerequisites.map(p => (
                                             <div key={p.slug} className="text-xs font-bold text-primary">{p.title}</div>
@@ -122,17 +122,17 @@ export default function LearningPathMap({ topics, completedTopics }: LearningPat
             </div>
 
             {/* Legend / Info */}
-            <div className="mt-32 flex flex-wrap justify-center gap-8 p-8 glass border-white/5 rounded-[2rem]">
+            <div className="mt-32 flex flex-wrap justify-center gap-8 p-8 glass border-border rounded-[2rem]">
                 <div className="flex items-center gap-3">
                     <div className="w-5 h-5 rounded bg-primary" />
                     <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Đã học xong</span>
                 </div>
                 <div className="flex items-center gap-3">
-                    <div className="w-5 h-5 rounded border border-primary/40 bg-white/5" />
+                    <div className="w-5 h-5 rounded border border-primary/40 bg-muted" />
                     <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Sẵn sàng học</span>
                 </div>
                 <div className="flex items-center gap-3">
-                    <div className="w-5 h-5 rounded border border-white/5 bg-black/40" />
+                    <div className="w-5 h-5 rounded border border-border bg-muted/60" />
                     <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Đang khóa</span>
                 </div>
             </div>

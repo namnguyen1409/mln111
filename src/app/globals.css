@@ -4,12 +4,40 @@
 
 @layer base {
   :root {
+    --background: #ffffff;
+    --foreground: #020617;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: #9d00ff;
+    --primary-foreground: #ffffff;
+    --secondary: #00d4ff;
+    --secondary-foreground: #020617;
+    --muted: #f1f5f9;
+    --muted-foreground: #64748b;
+    --accent: #ff0080;
+    --accent-foreground: #ffffff;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: #e2e8f0;
+    --input: #e2e8f0;
+    --ring: #9d00ff;
+    --radius: 1.5rem;
+
+    /* Custom tokens for components */
+    --bg-card: rgba(255, 255, 255, 0.8);
+    --border-glass: rgba(0, 0, 0, 0.05);
+    --neo-shadow-color: #9d00ff;
+  }
+
+  .dark {
     --background: #0a0a0f;
     --foreground: #ffffff;
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
     --primary: #9d00ff;
     --primary-foreground: #ffffff;
     --secondary: #00d4ff;
@@ -19,15 +47,15 @@
     --accent: #ff0080;
     --accent-foreground: #ffffff;
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive-foreground: 210 40% 98%;
     --border: #1a1a24;
     --input: #1a1a24;
     --ring: #9d00ff;
-    --radius: 0.75rem;
 
     /* Custom tokens for components */
-    --bg-card: rgba(0, 0, 0, 0.808);
+    --bg-card: rgba(0, 0, 0, 0.6);
     --border-glass: rgba(255, 255, 255, 0.1);
+    --neo-shadow-color: #bf00ff;
   }
 }
 
@@ -47,8 +75,8 @@
 }
 
 .neo-shadow {
-  box-shadow: 6px 6px 0px 0px #bf00ff;
-  border: 2px solid white;
+  box-shadow: 6px 6px 0px 0px var(--neo-shadow-color);
+  border: 2px solid var(--foreground);
 }
 
 .animate-fade-in {

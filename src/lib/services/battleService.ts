@@ -1,5 +1,7 @@
 import connectDB from "@/lib/db/mongodb";
 import BattleSession from "@/models/BattleSession";
+import Topic from "@/models/Topic";
+import Quiz from "@/models/Quiz";
 import { addPoints } from "./userService";
 
 export async function createBattleSession(hostEmail: string, topicId?: string, topicSlug: string = 'general', quizId?: string, timerDuration: number = 30) {

@@ -4,10 +4,9 @@ import { notFound } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ChevronLeft, CheckCircle2, Lightbulb, Info, Share2, Printer, Target } from "lucide-react";
-import Discussion from "@/components/learn/Discussion";
 import { getTopics } from "@/lib/services/topicService";
 import TaskTracking from "@/components/tasks/TaskTracking";
+import { ArrowRight, CheckCircle2, ChevronLeft, ChevronRight, Info, Lightbulb, Share2, Target } from "lucide-react";
 import { auth } from "@/lib/auth";
 import User from "@/models/User";
 import connectDB from "@/lib/db/mongodb";
@@ -15,6 +14,7 @@ import CompleteTopicButton from "@/components/learn/CompleteTopicButton";
 import QuickNoteButton from "@/components/notebook/QuickNoteButton";
 import HostBattleButton from "@/components/quiz/HostBattleButton";
 import { Zap } from "lucide-react";
+import Discussion from "@/components/learn/Discussion";
 
 export const revalidate = 3600; // Revalidate every hour
 
@@ -37,6 +37,10 @@ export default async function TopicDetailPage({ params }: { params: Promise<{ sl
     let initialCompleted = false;
     let isAdmin = false;
 
+    const topics = await getTopics();
+    const currentIndex = topics.findIndex((t: any) => t.slug === slug);
+    const nextTopic = currentIndex !== -1 && currentIndex < topics.length - 1 ? topics[currentIndex + 1] : null;
+
     if (session?.user?.email) {
         await connectDB();
         const user = await User.findOne({ email: session.user.email }).lean();
@@ -49,9 +53,9 @@ export default async function TopicDetailPage({ params }: { params: Promise<{ sl
             <div className="max-w-4xl mx-auto space-y-12 animate-fade-in">
                 {/* Navigation */}
                 <div className="flex justify-between items-center">
-                    <Button asChild variant="ghost" className="hover:bg-white/5 -ml-4">
-                        <Link href="/learn" className="flex items-center gap-2 text-primary">
-                            <ChevronLeft className="w-5 h-5" /> Danh sách bài học
+                    <Button asChild variant="ghost" className="hover:bg-muted -ml-4">
+                        <Link href="/learn" className="flex items-center gap-2 text-primary font-bold uppercase tracking-widest text-[10px]">
+                            <ChevronLeft className="w-5 h-5" /> Bài học
                         </Link>
                     </Button>
                     <div className="flex gap-2">
@@ -60,10 +64,10 @@ export default async function TopicDetailPage({ params }: { params: Promise<{ sl
                             topicSlug={slug}
                             topicTitle={topic.title}
                         />
-                        <Button variant="outline" size="icon" className="rounded-full h-12 w-12 border-white/10 hover:bg-white/5"><Share2 className="w-5 h-5" /></Button>
+                        <Button variant="outline" size="icon" className="rounded-full h-12 w-12 border-border hover:bg-muted"><Share2 className="w-5 h-5" /></Button>
                         {isAdmin && (
                             <div className="flex items-center gap-3 glass px-4 py-1.5 rounded-2xl border-secondary/20 bg-secondary/5">
-                                <span className="text-[10px] font-black uppercase text-secondary tracking-widest leading-none">Admin Tools</span>
+                                <span className="text-[10px] font-black uppercase text-secondary tracking-widest leading-none">Admin</span>
                                 <HostBattleButton topicId={topic._id.toString()} topicSlug={slug} />
                             </div>
                         )}
@@ -108,7 +112,7 @@ export default async function TopicDetailPage({ params }: { params: Promise<{ sl
                             </h3>
                             <ul className="space-y-4">
                                 {topic.content.keyPoints.map((point: string, idx: number) => (
-                                    <li key={idx} className="flex gap-4 p-4 glass rounded-2xl hover:bg-white/5 transition-colors border-white/5">
+                                    <li key={idx} className="flex gap-4 p-4 glass rounded-2xl hover:bg-muted transition-colors border-border">
                                         <span className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center font-bold text-primary">
                                             {idx + 1}
                                         </span>
@@ -120,7 +124,7 @@ export default async function TopicDetailPage({ params }: { params: Promise<{ sl
 
                         <section className="space-y-4">
                             <h3 className="text-2xl font-bold flex items-center gap-2">
-                                <Lightbulb className="text-yellow-400" /> Ví dụ đời sống Việt Nam
+                                <Lightbulb className="text-yellow-400" /> Ví dụ đời sống
                             </h3>
                             <div className="glass p-6 rounded-2xl border-yellow-500/20 bg-yellow-500/5">
                                 <p className="text-lg leading-relaxed">{topic.content.example}</p>
@@ -136,16 +140,22 @@ export default async function TopicDetailPage({ params }: { params: Promise<{ sl
                             <p className="text-muted-foreground mb-6">
                                 {topic.content.thoughtQuestion}
                             </p>
-                            <Button className="w-full neo-shadow font-bold">Thảo luận ngay</Button>
+                            <Button asChild className="w-full neo-shadow font-bold">
+                                <a href="#discussion">Thảo luận ngay</a>
+                            </Button>
                         </div>
                     </aside>
                 </div>
 
                 {/* Completion Section */}
-                <CompleteTopicButton topicSlug={slug} initialCompleted={initialCompleted} />
+                <CompleteTopicButton
+                    topicSlug={slug}
+                    initialCompleted={initialCompleted}
+                    nextTopic={nextTopic ? { slug: nextTopic.slug, title: nextTopic.title } : null}
+                />
 
                 {/* Discussion Section */}
-                <div className="pt-12 border-t border-white/5">
+                <div id="discussion" className="pt-12 border-t border-border">
                     <Discussion topicSlug={slug} />
                 </div>
 

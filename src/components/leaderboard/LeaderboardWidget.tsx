@@ -42,7 +42,7 @@ export default function LeaderboardWidget() {
     }, [mode]);
 
     return (
-        <Card className="glass border-white/5 rounded-[2.5rem] overflow-hidden">
+        <Card className="glass border-border rounded-[2.5rem] overflow-hidden">
             <CardContent className="p-0">
                 {/* Header with toggle */}
                 <div className="p-8 pb-4 flex flex-col md:flex-row justify-between items-center gap-4">
@@ -53,7 +53,7 @@ export default function LeaderboardWidget() {
                         <h3 className="text-2xl font-black italic uppercase tracking-tighter">Bảng vàng</h3>
                     </div>
 
-                    <div className="flex bg-white/5 p-1 rounded-xl border border-white/10">
+                    <div className="flex bg-muted p-1 rounded-xl border border-border">
                         <button
                             onClick={() => setMode('weekly')}
                             className={`px-4 py-1.5 rounded-lg text-xs font-black uppercase tracking-widest transition-all ${mode === 'weekly' ? 'bg-primary text-white neo-shadow' : 'text-muted-foreground hover:text-white'
@@ -63,7 +63,7 @@ export default function LeaderboardWidget() {
                         </button>
                         <button
                             onClick={() => setMode('total')}
-                            className={`px-4 py-1.5 rounded-lg text-xs font-black uppercase tracking-widest transition-all ${mode === 'total' ? 'bg-primary text-white neo-shadow' : 'text-muted-foreground hover:text-white'
+                            className={`px-4 py-1.5 rounded-lg text-xs font-black uppercase tracking-widest transition-all ${mode === 'total' ? 'bg-primary text-white neo-shadow' : 'text-muted-foreground hover:text-foreground'
                                 }`}
                         >
                             Tổng hợp
@@ -104,7 +104,7 @@ export default function LeaderboardWidget() {
                                 {users.map((user, idx) => (
                                     <div
                                         key={user._id}
-                                        className={`flex items-center gap-4 p-4 rounded-2xl transition-all border border-transparent hover:border-white/5 hover:bg-white/[0.02] group ${idx === 0 ? 'bg-primary/5 border-primary/10' : ''
+                                        className={`flex items-center gap-4 p-4 rounded-2xl transition-all border border-transparent hover:border-border hover:bg-muted/50 group ${idx === 0 ? 'bg-primary/5 border-primary/10' : ''
                                             }`}
                                     >
                                         <div className="w-8 text-center shrink-0">
@@ -114,7 +114,7 @@ export default function LeaderboardWidget() {
                                                         <span className="text-sm font-black text-muted-foreground opacity-30">{idx + 1}</span>}
                                         </div>
 
-                                        <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center font-black uppercase text-xs">
+                                        <div className="w-10 h-10 rounded-xl bg-muted border border-border flex items-center justify-center font-black uppercase text-xs">
                                             {user.name[0]}
                                         </div>
 
@@ -124,7 +124,7 @@ export default function LeaderboardWidget() {
                                                 {user.isAdmin && <Badge className="bg-primary/20 text-primary border-none text-[8px] h-4 px-1">AD</Badge>}
                                             </div>
                                             <div className="flex items-center gap-2 mt-0.5">
-                                                <div className="h-1 flex-grow max-w-[40px] bg-white/5 rounded-full overflow-hidden">
+                                                <div className="h-1 flex-grow max-w-[40px] bg-muted rounded-full overflow-hidden">
                                                     <div className="h-full bg-primary" style={{ width: `${Math.min(100, (mode === 'weekly' ? user.weeklyPoints : user.points) / 10)}%` }} />
                                                 </div>
                                                 <span className="text-[10px] text-muted-foreground font-medium">Lv.{user.level}</span>
@@ -146,7 +146,7 @@ export default function LeaderboardWidget() {
 
                 {/* Footer link */}
                 <div className="p-4 pt-0">
-                    <Button asChild variant="ghost" className="w-full rounded-2xl h-12 text-xs font-black uppercase tracking-widest text-muted-foreground hover:text-white hover:bg-white/5 group">
+                    <Button asChild variant="ghost" className="w-full rounded-2xl h-12 text-xs font-black uppercase tracking-widest text-muted-foreground hover:text-foreground hover:bg-muted group">
                         <a href="/leaderboard">
                             Xem tất cả <ArrowRight className="w-3 h-3 ml-2 transition-transform group-hover:translate-x-1" />
                         </a>

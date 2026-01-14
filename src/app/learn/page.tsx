@@ -25,7 +25,7 @@ export default async function LearnPage() {
     return (
         <div className="max-w-6xl mx-auto px-4 py-12 animate-fade-in">
             <header className="mb-12 space-y-4">
-                <Button asChild variant="ghost" size="sm" className="hover:bg-white/10 -ml-2">
+                <Button asChild variant="ghost" size="sm" className="hover:bg-muted -ml-2">
                     <Link href="/" className="flex items-center gap-2 text-primary font-medium">
                         <ChevronLeft className="w-4 h-4" /> Trang chủ
                     </Link>
@@ -46,8 +46,8 @@ export default async function LearnPage() {
                     <LearningPathMap topics={topics} completedTopics={completedTopics} />
                 </div>
             ) : (
-                <div className="py-32 text-center glass rounded-[3rem] border-white/5 space-y-8">
-                    <div className="w-24 h-24 bg-white/5 rounded-full flex items-center justify-center mx-auto text-5xl">
+                <div className="py-32 text-center glass rounded-[3rem] border-border space-y-8">
+                    <div className="w-24 h-24 bg-muted rounded-full flex items-center justify-center mx-auto text-5xl">
                         🌱
                     </div>
                     <div className="space-y-2">

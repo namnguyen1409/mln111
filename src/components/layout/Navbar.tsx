@@ -11,12 +11,13 @@ import {
 } from "@/components/ui/popover";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "../ui/badge";
+import { ThemeToggle } from "../theme/ThemeToggle";
 
 export default function Navbar() {
     const { data: session, status } = useSession();
 
     return (
-        <nav className="w-full h-20 bg-background/80 backdrop-blur-xl border-b border-white/5 flex items-center justify-between px-6 md:px-12 fixed top-0 left-0 z-[1000]">
+        <nav className="w-full h-20 bg-background/80 backdrop-blur-xl border-b border-border flex items-center justify-between px-6 md:px-12 fixed top-0 left-0 z-[1000]">
             <Link href="/" className="flex items-center gap-3 group">
                 <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center neo-shadow group-hover:scale-110 transition-transform">
                     <Brain className="text-white w-6 h-6" />
@@ -36,6 +37,8 @@ export default function Navbar() {
                     <Link href="/quiz" className="hover:text-primary transition-colors">Thử thách</Link>
                     <Link href="/review" className="hover:text-primary transition-colors">Ôn tập</Link>
                 </div>
+
+                <ThemeToggle />
 
                 {status === "loading" ? (
                     <div className="w-10 h-10 rounded-full bg-white/5 animate-pulse" />

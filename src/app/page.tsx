@@ -22,7 +22,7 @@ export default function Home() {
           <Button asChild size="lg" className="h-14 px-8 text-lg font-bold neo-shadow bg-primary hover:bg-primary/90 transition-all rounded-xl">
             <Link href="/learn">Bắt đầu học ngay</Link>
           </Button>
-          <Button asChild variant="outline" size="lg" className="h-14 px-8 text-lg font-bold border-2 hover:bg-white/10 transition-all rounded-xl">
+          <Button asChild variant="outline" size="lg" className="h-14 px-8 text-lg font-bold border-2 hover:bg-muted transition-all rounded-xl">
             <Link href="/leaderboard">Bảng xếp hạng</Link>
           </Button>
         </div>
@@ -57,11 +57,11 @@ export default function Home() {
               description="Flashcards thông minh cho kỳ thi."
               icon={<Repeat className="w-8 h-8" />}
               href="/review"
-              color="border-green-400"
+              color="border-success"
             />
           </div>
 
-          <div className="glass p-12 rounded-[3rem] border-white/5 relative overflow-hidden group">
+          <Card className="glass p-12 rounded-[3rem] border-border relative overflow-hidden group">
             <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:scale-110 transition-transform">
               <Sparkles className="w-40 h-40 text-primary" />
             </div>
@@ -72,7 +72,7 @@ export default function Home() {
                 <Link href="/learn">Khám phá lộ trình <ChevronRight className="ml-2 w-5 h-5" /></Link>
               </Button>
             </div>
-          </div>
+          </Card>
         </div>
 
         <div className="space-y-6">
@@ -88,7 +88,7 @@ function FeatureCard({ title, description, icon, href, color }: any) {
     <Link href={href}>
       <Card className={`h-full border-2 border-transparent hover:${color} transition-all duration-300 glass hover:-translate-y-2 cursor-pointer group rounded-2xl`}>
         <CardHeader>
-          <div className="p-3 w-fit rounded-xl bg-white/5 mb-2 group-hover:scale-110 transition-transform">
+          <div className="p-3 w-fit rounded-xl bg-muted mb-2 group-hover:scale-110 transition-transform">
             {icon}
           </div>
           <CardTitle className="text-2xl font-bold">{title}</CardTitle>
