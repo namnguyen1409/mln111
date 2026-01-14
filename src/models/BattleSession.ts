@@ -19,6 +19,9 @@ export interface IBattleSession extends Document {
     currentQuestionIndex: number;
     questionStartTime?: Date;
     timerDuration: number;
+    type: 'classic' | 'bet';
+    betAmount: number;
+    totalPool: number;
     participants: IBattleParticipant[];
     createdAt: Date;
     updatedAt: Date;
@@ -39,6 +42,9 @@ const BattleSessionSchema: Schema = new Schema(
         currentQuestionIndex: { type: Number, default: 0 },
         questionStartTime: { type: Date },
         timerDuration: { type: Number, default: 30 }, // Default 30 seconds per question
+        type: { type: String, enum: ['classic', 'bet'], default: 'classic' },
+        betAmount: { type: Number, default: 0 },
+        totalPool: { type: Number, default: 0 },
         participants: [{
             email: { type: String, required: true },
             name: { type: String, required: true },

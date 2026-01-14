@@ -7,8 +7,8 @@ export async function POST(req: Request) {
     if (!session?.user?.email) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     try {
-        const { topicId, topicSlug, quizId } = await req.json();
-        const battle = await createBattleSession(session.user.email, topicId, topicSlug, quizId);
+        const { topicId, topicSlug, quizId, type, betAmount } = await req.json();
+        const battle = await createBattleSession(session.user.email, topicId, topicSlug, quizId, 30, type, betAmount);
         return NextResponse.json(battle);
     } catch (error: any) {
         return NextResponse.json({ error: error.message }, { status: 500 });

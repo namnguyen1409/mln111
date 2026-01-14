@@ -14,7 +14,8 @@ import {
     Share2,
     Crown,
     Zap,
-    Loader2
+    Loader2,
+    Coins
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -153,6 +154,16 @@ export default function LiveBattle({ code, isHost, userEmail }: LiveBattleProps)
                     </h1>
                     <p className="text-muted-foreground italic text-lg">Chia sẻ mã này với cả lớp để bắt đầu trò chơi!</p>
 
+                    {battle.type === 'bet' && (
+                        <div className="flex flex-col items-center gap-2 animate-bounce mt-4">
+                            <div className="flex items-center gap-3 bg-secondary/10 border border-secondary/30 px-6 py-3 rounded-full text-secondary">
+                                <Coins className="w-6 h-6" />
+                                <span className="text-2xl font-black italic">TỔNG CƯỢC: {battle.totalPool} EXP</span>
+                            </div>
+                            <p className="text-[10px] font-black uppercase tracking-widest text-secondary/60">Mỗi người cược: {battle.betAmount} EXP</p>
+                        </div>
+                    )}
+
                     <div className="flex justify-center gap-4">
                         <Button
                             variant="outline"
@@ -227,31 +238,44 @@ export default function LiveBattle({ code, isHost, userEmail }: LiveBattleProps)
                             <span className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground text-right">Tổng EXP</span>
                         </div>
                         <div className="divide-y divide-white/5">
-                            {sortedParticipants.map((p, idx) => (
-                                <div key={p.email} className="p-8 flex items-center justify-between group hover:bg-white/5 transition-colors">
-                                    <div className="flex items-center gap-6">
-                                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-black italic text-xl ${idx === 0 ? 'bg-yellow-400 text-white shadow-lg shadow-yellow-400/20' :
-                                            idx === 1 ? 'bg-slate-300 text-slate-700' :
-                                                idx === 2 ? 'bg-amber-600 text-white' : 'bg-white/5 text-muted-foreground'
-                                            }`}>
-                                            {idx + 1}
-                                        </div>
-                                        <div>
-                                            <div className="flex items-center gap-2">
-                                                <h4 className="font-black text-xl">{p.name}</h4>
-                                                {idx === 0 && <Crown className="w-5 h-5 text-yellow-400 fill-current" />}
+                            {sortedParticipants.map((p, idx) => {
+                                const maxScore = Math.max(...sortedParticipants.map(sp => sp.score));
+                                const isWinner = p.score === maxScore && maxScore > 0;
+                                const winnerCount = sortedParticipants.filter(sp => sp.score === maxScore && maxScore > 0).length;
+                                const shareOfPool = isWinner && battle.type === 'bet' ? Math.floor(battle.totalPool / winnerCount) : 0;
+
+                                return (
+                                    <div key={p.email} className={`p-8 flex items-center justify-between group hover:bg-white/5 transition-colors ${isWinner && battle.type === 'bet' ? 'bg-secondary/5' : ''}`}>
+                                        <div className="flex items-center gap-6">
+                                            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-black italic text-xl ${idx === 0 ? 'bg-yellow-400 text-white shadow-lg shadow-yellow-400/20' :
+                                                idx === 1 ? 'bg-slate-300 text-slate-700' :
+                                                    idx === 2 ? 'bg-amber-600 text-white' : 'bg-white/5 text-muted-foreground'
+                                                }`}>
+                                                {idx + 1}
                                             </div>
-                                            <p className="text-xs text-muted-foreground uppercase font-black tracking-widest">{p.email}</p>
+                                            <div>
+                                                <div className="flex items-center gap-2">
+                                                    <h4 className="font-black text-xl">{p.name}</h4>
+                                                    {idx === 0 && <Crown className="w-5 h-5 text-yellow-400 fill-current" />}
+                                                    {isWinner && battle.type === 'bet' && (
+                                                        <Badge variant="secondary" className="bg-secondary text-white border-none text-[10px] font-black uppercase italic px-2">Winner Takes All</Badge>
+                                                    )}
+                                                </div>
+                                                <p className="text-xs text-muted-foreground uppercase font-black tracking-widest">{p.email}</p>
+                                            </div>
+                                        </div>
+                                        <div className="text-right">
+                                            <div className="text-2xl font-black italic text-primary flex items-center justify-end gap-2">
+                                                <Zap className="w-5 h-5 fill-current" />
+                                                {battle.type === 'bet' ? (isWinner ? `+${shareOfPool}` : '0') : `+${p.score}`}
+                                            </div>
+                                            <div className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mt-1">
+                                                {battle.type === 'bet' ? (isWinner ? 'Đã nhận thưởng Pot' : 'Trắng tay') : 'Đã cộng vào tài khoản'}
+                                            </div>
                                         </div>
                                     </div>
-                                    <div className="text-right">
-                                        <div className="text-2xl font-black italic text-primary flex items-center justify-end gap-2">
-                                            <Zap className="w-5 h-5 fill-current" /> +{p.score}
-                                        </div>
-                                        <div className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mt-1">Đã cộng vào tài khoản</div>
-                                    </div>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     </CardContent>
                 </Card>
@@ -282,7 +306,7 @@ export default function LiveBattle({ code, isHost, userEmail }: LiveBattleProps)
                         </span>
                     </div>
                     <div>
-                        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Tiến trình</p>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Tiến trình {battle.type === 'bet' ? '(CƯỢC)' : ''}</p>
                         <p className="font-black italic text-xl uppercase tracking-tighter">Câu {battle.currentQuestionIndex + 1} / {allQuestions.length}</p>
                     </div>
                 </div>
@@ -344,8 +368,8 @@ export default function LiveBattle({ code, isHost, userEmail }: LiveBattleProps)
                                 {currentQuestion.options.map((option: string, idx: number) => (
                                     <div key={idx} className="glass p-6 rounded-2xl border-white/5 text-left flex items-center gap-4">
                                         <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-black italic text-lg ${idx === 0 ? 'bg-primary text-white' :
-                                                idx === 1 ? 'bg-secondary text-white' :
-                                                    idx === 2 ? 'bg-accent text-white' : 'bg-green-500 text-white'
+                                            idx === 1 ? 'bg-secondary text-white' :
+                                                idx === 2 ? 'bg-accent text-white' : 'bg-green-500 text-white'
                                             }`}>
                                             {String.fromCharCode(65 + idx)}
                                         </div>
@@ -365,8 +389,8 @@ export default function LiveBattle({ code, isHost, userEmail }: LiveBattleProps)
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                                 {battle.participants.sort((a: any, b: any) => b.score - a.score).map((p: any) => (
                                     <div key={p.email} className={`p-4 rounded-xl border transition-all flex items-center justify-between ${p.lastAnswerCorrect === true ? 'bg-green-500/10 border-green-500/50' :
-                                            p.lastAnswerCorrect === false ? 'bg-red-500/10 border-red-500/50' :
-                                                'bg-white/5 border-white/10'
+                                        p.lastAnswerCorrect === false ? 'bg-red-500/10 border-red-500/50' :
+                                            'bg-white/5 border-white/10'
                                         }`}>
                                         <div className="flex items-center gap-2">
                                             <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-xs font-black uppercase">
@@ -470,9 +494,9 @@ function QuizParticipantView({ battle, currentQuestion, userEmail, timeLeft }: a
                         onClick={() => handleAnswer(option)}
                         disabled={timeLeft <= 0}
                         className={`group relative overflow-hidden rounded-[2.5rem] p-12 border-b-8 transition-all active:translate-y-2 active:border-b-0 ${idx === 0 ? 'bg-primary hover:bg-primary/80 border-primary/50' :
-                                idx === 1 ? 'bg-secondary hover:bg-secondary/80 border-secondary/50' :
-                                    idx === 2 ? 'bg-accent hover:bg-accent/80 border-accent/50' :
-                                        'bg-green-500 hover:bg-green-600 border-green-700/50'
+                            idx === 1 ? 'bg-secondary hover:bg-secondary/80 border-secondary/50' :
+                                idx === 2 ? 'bg-accent hover:bg-accent/80 border-accent/50' :
+                                    'bg-green-500 hover:bg-green-600 border-green-700/50'
                             }`}
                     >
                         <div className="flex items-center justify-center gap-6">

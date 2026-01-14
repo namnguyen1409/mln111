@@ -141,3 +141,20 @@ export async function toggleAdmin(email: string) {
     }
     return user;
 }
+
+/**
+ * Khấu trừ điểm EXP (dùng cho đặt cược)
+ */
+export async function deductPoints(email: string, amount: number) {
+    await connectDB();
+    const user = await User.findOne({ email });
+
+    if (user) {
+        if (user.points < amount) throw new Error("Không đủ điểm để thực hiện");
+
+        user.points -= amount;
+        user.level = Math.floor(user.points / 1000) + 1;
+        await user.save();
+    }
+    return user;
+}

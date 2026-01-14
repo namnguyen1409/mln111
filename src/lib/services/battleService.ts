@@ -2,9 +2,9 @@ import connectDB from "@/lib/db/mongodb";
 import BattleSession from "@/models/BattleSession";
 import Topic from "@/models/Topic";
 import Quiz from "@/models/Quiz";
-import { addPoints } from "./userService";
+import { addPoints, deductPoints } from "./userService";
 
-export async function createBattleSession(hostEmail: string, topicId?: string, topicSlug: string = 'general', quizId?: string, timerDuration: number = 30) {
+export async function createBattleSession(hostEmail: string, topicId?: string, topicSlug: string = 'general', quizId?: string, timerDuration: number = 30, type: 'classic' | 'bet' = 'classic', betAmount: number = 0) {
     await connectDB();
     const code = Math.random().toString(36).substring(2, 8).toUpperCase();
     const session = new BattleSession({
@@ -14,6 +14,9 @@ export async function createBattleSession(hostEmail: string, topicId?: string, t
         quizId,
         topicSlug,
         timerDuration,
+        type,
+        betAmount,
+        totalPool: 0,
         status: 'waiting',
         participants: []
     });
@@ -28,6 +31,12 @@ export async function joinBattleSession(code: string, user: { email: string; nam
 
     const existing = session.participants.find((p: any) => p.email === user.email);
     if (!existing) {
+        // Handle betting deduction
+        if (session.type === 'bet' && session.betAmount > 0) {
+            await deductPoints(user.email, session.betAmount);
+            session.totalPool += session.betAmount;
+        }
+
         session.participants.push({ ...user, score: 0, finished: false });
         await session.save();
     }
@@ -105,11 +114,23 @@ export async function finishBattle(code: string, hostEmail: string) {
     session.status = 'finished';
     await session.save();
 
-    // Batch distribute EXP at the end
-    const rewardPromises = session.participants.map((p: any) =>
-        addPoints(p.email, p.score)
-    );
-    await Promise.allSettled(rewardPromises);
+    if (session.type === 'bet' && session.totalPool > 0) {
+        // Identify individual winner(s)
+        const maxScore = Math.max(...session.participants.map((p: any) => p.score));
+        const winners = session.participants.filter((p: any) => p.score === maxScore && maxScore > 0);
+
+        if (winners.length > 0) {
+            const rewardPerWinner = Math.floor(session.totalPool / winners.length);
+            const rewardPromises = winners.map((w: any) => addPoints(w.email, rewardPerWinner));
+            await Promise.allSettled(rewardPromises);
+        }
+    } else {
+        // Classic mode: Distribution is based on earned scores
+        const rewardPromises = session.participants.map((p: any) =>
+            addPoints(p.email, p.score)
+        );
+        await Promise.allSettled(rewardPromises);
+    }
 
     return session;
 }
