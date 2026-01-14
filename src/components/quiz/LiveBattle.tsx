@@ -479,12 +479,11 @@ function QuizParticipantView({ battle, currentQuestion, userEmail, timeLeft }: a
 
     return (
         <div className="space-y-12 animate-fade-in">
-            <div className="text-center space-y-6">
-                <Badge className="bg-secondary/20 text-secondary border-none animate-pulse">
-                    NHÌN LÊN MÀN HÌNH CHUNG ĐỂ XEM CÂU HỎI
+            <div className="text-center space-y-4">
+                <Badge className="bg-secondary/20 text-secondary border-none px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">
+                    {battle.type === 'bet' ? 'Đấu trường sinh tử' : 'Thi đấu trực tiếp'}
                 </Badge>
-                {/* Question text is hidden for student to focus on shared screen */}
-                <h2 className="text-3xl font-black italic uppercase text-muted-foreground opacity-20">Hãy chọn đáp án đúng</h2>
+                <h2 className="text-2xl md:text-4xl font-black italic uppercase leading-tight">{currentQuestion.question}</h2>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -493,18 +492,17 @@ function QuizParticipantView({ battle, currentQuestion, userEmail, timeLeft }: a
                         key={idx}
                         onClick={() => handleAnswer(option)}
                         disabled={timeLeft <= 0}
-                        className={`group relative overflow-hidden rounded-[2.5rem] p-12 border-b-8 transition-all active:translate-y-2 active:border-b-0 ${idx === 0 ? 'bg-primary hover:bg-primary/80 border-primary/50' :
+                        className={`group relative overflow-hidden rounded-[2.5rem] p-8 border-b-8 transition-all active:translate-y-2 active:border-b-0 text-left ${idx === 0 ? 'bg-primary hover:bg-primary/80 border-primary/50' :
                             idx === 1 ? 'bg-secondary hover:bg-secondary/80 border-secondary/50' :
                                 idx === 2 ? 'bg-accent hover:bg-accent/80 border-accent/50' :
                                     'bg-green-500 hover:bg-green-600 border-green-700/50'
                             }`}
                     >
-                        <div className="flex items-center justify-center gap-6">
-                            <span className="text-6xl font-black italic text-white/40 group-hover:text-white/60 transition-colors">
+                        <div className="flex items-center gap-6">
+                            <span className="text-4xl font-black italic text-white/40 group-hover:text-white/60 transition-colors shrink-0">
                                 {String.fromCharCode(65 + idx)}
                             </span>
-                            {/* Option text is also very subtle to force looking at main screen, or can be removed */}
-                            {/* <span className="text-2xl font-black text-white">{option}</span> */}
+                            <span className="text-xl font-bold text-white leading-tight">{option}</span>
                         </div>
                     </button>
                 ))}
