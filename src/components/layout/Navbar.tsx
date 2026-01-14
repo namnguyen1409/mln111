@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useSession, signIn, signOut } from "next-auth/react";
 import { Button } from "@/components/ui/button";
-import { User, LogOut, LogIn, Settings, LayoutDashboard, Brain, Flame, Trophy } from "lucide-react";
+import { User, LogOut, LogIn, Settings, LayoutDashboard, Brain, Flame, Trophy, Book } from "lucide-react";
 import {
     Popover,
     PopoverContent,
@@ -29,6 +29,7 @@ export default function Navbar() {
             <div className="flex items-center gap-6">
                 <div className="hidden md:flex items-center gap-6 text-sm font-bold uppercase tracking-widest text-muted-foreground">
                     <Link href="/learn" className="hover:text-primary transition-colors">Học tập</Link>
+                    <Link href="/notebook" className="hover:text-primary transition-colors">Sổ tay</Link>
                     <Link href="/quiz" className="hover:text-primary transition-colors">Thử thách</Link>
                     <Link href="/review" className="hover:text-primary transition-colors">Ôn tập</Link>
                 </div>
@@ -77,6 +78,12 @@ export default function Navbar() {
                             <Link href="/profile">
                                 <Button variant="ghost" className="w-full justify-start gap-3 rounded-xl hover:bg-white/5">
                                     <User className="w-4 h-4" /> Trang cá nhân
+                                </Button>
+                            </Link>
+
+                            <Link href="/notebook">
+                                <Button variant="ghost" className="w-full justify-start gap-3 rounded-xl hover:bg-white/5">
+                                    <Book className="w-4 h-4" /> Sổ tay tri thức
                                 </Button>
                             </Link>
 

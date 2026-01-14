@@ -12,6 +12,7 @@ import { auth } from "@/lib/auth";
 import User from "@/models/User";
 import connectDB from "@/lib/db/mongodb";
 import CompleteTopicButton from "@/components/learn/CompleteTopicButton";
+import QuickNoteButton from "@/components/notebook/QuickNoteButton";
 
 export const revalidate = 3600; // Revalidate every hour
 
@@ -49,8 +50,12 @@ export default async function TopicDetailPage({ params }: { params: Promise<{ sl
                         </Link>
                     </Button>
                     <div className="flex gap-2">
-                        <Button variant="outline" size="icon" className="rounded-full"><Share2 className="w-4 h-4" /></Button>
-                        <Button variant="outline" size="icon" className="rounded-full"><Printer className="w-4 h-4" /></Button>
+                        <QuickNoteButton
+                            topicId={topic._id.toString()}
+                            topicSlug={slug}
+                            topicTitle={topic.title}
+                        />
+                        <Button variant="outline" size="icon" className="rounded-full h-12 w-12 border-white/10 hover:bg-white/5"><Share2 className="w-5 h-5" /></Button>
                     </div>
                 </div>
 
