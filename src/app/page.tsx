@@ -2,7 +2,8 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { BookOpen, Brain, Gamepad2, Repeat, Trophy } from "lucide-react";
+import { BookOpen, Brain, Gamepad2, Repeat, Trophy, Sparkles, ChevronRight } from "lucide-react";
+import LeaderboardWidget from "@/components/leaderboard/LeaderboardWidget";
 
 export default function Home() {
   return (
@@ -27,45 +28,56 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 w-full animate-fade-in [animation-delay:200ms]">
-        <FeatureCard
-          title="Học nhanh"
-          description="Tóm tắt lý thuyết, ví dụ đời sống Việt Nam."
-          icon={<BookOpen className="w-8 h-8" />}
-          href="/learn"
-          color="border-primary"
-        />
-        <FeatureCard
-          title="Sơ đồ tư duy"
-          description="Trực quan hóa nguyên lý và quy luật."
-          icon={<Brain className="w-8 h-8" />}
-          href="/mindmap"
-          color="border-secondary"
-        />
-        <FeatureCard
-          title="Game Quiz"
-          description="Thách thức kiến thức, tích lũy XP."
-          icon={<Gamepad2 className="w-8 h-8" />}
-          href="/quiz"
-          color="border-accent"
-        />
-        <FeatureCard
-          title="Ôn tập"
-          description="Flashcards thông minh cho kỳ thi."
-          icon={<Repeat className="w-8 h-8" />}
-          href="/review"
-          color="border-green-400"
-        />
-      </div>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 w-full animate-fade-in [animation-delay:200ms]">
+        <div className="lg:col-span-2 space-y-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <FeatureCard
+              title="Học nhanh"
+              description="Tóm tắt lý thuyết, ví dụ đời sống Việt Nam."
+              icon={<BookOpen className="w-8 h-8" />}
+              href="/learn"
+              color="border-primary"
+            />
+            <FeatureCard
+              title="Sơ đồ tư duy"
+              description="Trực quan hóa nguyên lý và quy luật."
+              icon={<Brain className="w-8 h-8" />}
+              href="/mindmap"
+              color="border-secondary"
+            />
+            <FeatureCard
+              title="Game Quiz"
+              description="Thách thức kiến thức, tích lũy XP."
+              icon={<Gamepad2 className="w-8 h-8" />}
+              href="/quiz"
+              color="border-accent"
+            />
+            <FeatureCard
+              title="Ôn tập"
+              description="Flashcards thông minh cho kỳ thi."
+              icon={<Repeat className="w-8 h-8" />}
+              href="/review"
+              color="border-green-400"
+            />
+          </div>
 
-      <div className="w-full max-w-4xl glass p-8 rounded-3xl mt-8 flex flex-col md:flex-row items-center justify-between gap-8 border-white/10 shadow-2xl animate-fade-in [animation-delay:400ms]">
-        <div className="space-y-2">
-          <h2 className="text-2xl font-bold flex items-center gap-2">
-            <Trophy className="text-yellow-400" /> Top Người chơi tuần
-          </h2>
-          <p className="text-muted-foreground">Tham gia thi đấu cùng hàng ngàn sinh viên khác.</p>
+          <div className="glass p-12 rounded-[3rem] border-white/5 relative overflow-hidden group">
+            <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:scale-110 transition-transform">
+              <Sparkles className="w-40 h-40 text-primary" />
+            </div>
+            <div className="space-y-4 relative z-10">
+              <h2 className="text-3xl font-black italic uppercase tracking-tighter">Cây tri thức mới 🌳</h2>
+              <p className="text-muted-foreground max-w-md italic">Sẵn sàng chinh phục hệ thống bài học được thiết kế theo lộ trình gamification cực đỉnh?</p>
+              <Button asChild size="lg" className="rounded-2xl h-14 px-8 font-black uppercase italic neo-shadow">
+                <Link href="/learn">Khám phá lộ trình <ChevronRight className="ml-2 w-5 h-5" /></Link>
+              </Button>
+            </div>
+          </div>
         </div>
-        <Button variant="secondary" className="font-bold">Xem bảng xếp hạng</Button>
+
+        <div className="space-y-6">
+          <LeaderboardWidget />
+        </div>
       </div>
     </main>
   );

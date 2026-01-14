@@ -6,10 +6,12 @@ import { Trophy, Medal, Crown, ChevronLeft, ArrowRight } from "lucide-react";
 import { getLeaderboard, getUserRank } from "@/lib/services/userService";
 import { auth } from "@/lib/auth";
 
-export default async function LeaderboardPage() {
+export default async function LeaderboardPage({ searchParams }: { searchParams: Promise<{ mode?: string }> }) {
+    const { mode: modeParam } = await searchParams;
+    const mode = (modeParam === 'weekly' ? 'weekly' : 'total') as 'total' | 'weekly';
     const session = await auth();
-    const leaderboard = await getLeaderboard(50);
-    const currentUserRank = session?.user?.email ? await getUserRank(session.user.email) : null;
+    const leaderboard = await getLeaderboard(50, mode);
+    const currentUserRank = session?.user?.email ? await getUserRank(session.user.email, mode) : null;
 
     return (
         <div className="max-w-4xl mx-auto px-4 py-12 animate-fade-in space-y-12">
@@ -26,20 +28,38 @@ export default async function LeaderboardPage() {
                         </h1>
                         <p className="text-muted-foreground italic">Top những "Triết gia" xuất sắc nhất hệ thống.</p>
                     </div>
-                    {currentUserRank && (
-                        <div className="glass px-6 py-4 rounded-2xl border-primary/20 bg-primary/5 flex items-center gap-4">
-                            <div className="text-center">
-                                <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Hạng của bạn</p>
-                                <p className="text-2xl font-black text-primary">#{currentUserRank.rank}</p>
-                            </div>
-                            <div className="w-px h-8 bg-white/10" />
-                            <div className="text-center">
-                                <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Điểm</p>
-                                <p className="text-2xl font-black">{currentUserRank.points.toLocaleString()}</p>
-                            </div>
-                        </div>
-                    )}
+
+                    <div className="flex bg-white/5 p-1 rounded-xl border border-white/10 shrink-0">
+                        <Link
+                            href="/leaderboard?mode=weekly"
+                            className={`px-6 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all ${mode === 'weekly' ? 'bg-primary text-white neo-shadow' : 'text-muted-foreground hover:text-white'
+                                }`}
+                        >
+                            Tuần này
+                        </Link>
+                        <Link
+                            href="/leaderboard?mode=total"
+                            className={`px-6 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all ${mode === 'total' ? 'bg-primary text-white neo-shadow' : 'text-muted-foreground hover:text-white'
+                                }`}
+                        >
+                            Tổng hợp
+                        </Link>
+                    </div>
                 </div>
+
+                {currentUserRank && (
+                    <div className="glass px-6 py-4 rounded-2xl border-primary/20 bg-primary/5 flex items-center gap-4 max-w-fit">
+                        <div className="text-center">
+                            <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Hạng của bạn</p>
+                            <p className="text-2xl font-black text-primary">#{currentUserRank.rank}</p>
+                        </div>
+                        <div className="w-px h-8 bg-white/10" />
+                        <div className="text-center">
+                            <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Điểm {mode === 'weekly' ? 'tuần' : 'tổng'}</p>
+                            <p className="text-2xl font-black">{(currentUserRank.points || 0).toLocaleString()}</p>
+                        </div>
+                    </div>
+                )}
             </header>
 
             <div className="grid grid-cols-1 gap-4">
@@ -77,8 +97,13 @@ export default async function LeaderboardPage() {
                                 </div>
 
                                 <div className="text-right">
-                                    <div className="text-2xl font-black text-primary italic">{(user.points || 0).toLocaleString()} <span className="text-sm font-bold opacity-50">XP</span></div>
-                                    <div className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Tích lũy</div>
+                                    <div className="text-2xl font-black text-primary italic">
+                                        {((mode === 'weekly' ? (user.weeklyPoints || 0) : (user.points || 0))).toLocaleString()}
+                                        <span className="text-sm font-bold opacity-50 ml-1">XP</span>
+                                    </div>
+                                    <div className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">
+                                        {mode === 'weekly' ? 'Tuần này' : 'Tích lũy'}
+                                    </div>
                                 </div>
                             </CardContent>
                         </Card>

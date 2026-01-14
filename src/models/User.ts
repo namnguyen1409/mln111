@@ -11,6 +11,8 @@ export interface IUser extends Document {
     totalLogins: number;
     isAdmin: boolean;
     completedTopics: string[]; // Slugs of completed topics
+    weeklyPoints: number;
+    lastResetWeek: string; // YYYY-WW format
     createdAt: Date;
     updatedAt: Date;
 }
@@ -32,7 +34,9 @@ const UserSchema: Schema = new Schema(
                 earnedAt: { type: Date, default: Date.now }
             }
         ],
-        completedTopics: [{ type: String }] // Array of topic slugs
+        completedTopics: [{ type: String }], // Array of topic slugs
+        weeklyPoints: { type: Number, default: 0 },
+        lastResetWeek: { type: String, default: "" }
     },
     {
         timestamps: true

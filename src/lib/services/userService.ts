@@ -11,29 +11,41 @@ export async function getAllUsers() {
     return User.find({}).sort({ points: -1 }).lean();
 }
 
-export async function getLeaderboard(limit: number = 50) {
+export async function getLeaderboard(limit: number = 50, mode: 'total' | 'weekly' = 'total') {
     await connectDB();
+    const sortBy = mode === 'weekly' ? { weeklyPoints: -1 } : { points: -1 };
     const users = await User.find({})
-        .sort({ points: -1 })
+        .sort(sortBy as any)
         .limit(limit)
         .lean();
     return users;
 }
 
-export async function getUserRank(email: string) {
+export async function getUserRank(email: string, mode: 'total' | 'weekly' = 'total') {
     await connectDB();
     const user = await User.findOne({ email });
     if (!user) return null;
 
+    const points = mode === 'weekly' ? user.weeklyPoints : user.points;
+    const field = mode === 'weekly' ? 'weeklyPoints' : 'points';
+
     const rank = await User.countDocuments({
-        points: { $gt: user.points }
+        [field]: { $gt: points }
     }) + 1;
 
     return {
         rank,
-        points: user.points,
-        nextRankPoints: 0 // Could implement more complex logic here if needed
+        points,
+        nextRankPoints: 0
     };
+}
+
+export function getCurrentWeekKey() {
+    const now = new Date();
+    const startOfYear = new Date(now.getFullYear(), 0, 1);
+    const days = Math.floor((now.getTime() - startOfYear.getTime()) / (24 * 60 * 60 * 1000));
+    const weekNumber = Math.ceil((days + startOfYear.getDay() + 1) / 7);
+    return `${now.getFullYear()}-W${weekNumber.toString().padStart(2, '0')}`;
 }
 
 export async function updateDailyStreak(email: string) {
@@ -90,14 +102,25 @@ export async function updateDailyStreak(email: string) {
     return user;
 }
 
-export async function addPoints(email: string, points: number) {
+/**
+ * Cấp điểm EXP cho người dùng
+ */
+export async function addPoints(email: string, amount: number) {
     await connectDB();
-    const user = await User.findOneAndUpdate(
-        { email },
-        { $inc: { points } },
-        { new: true }
-    );
+    const user = await User.findOne({ email });
+
     if (user) {
+        // Weekly Reset Logic
+        const currentWeekKey = getCurrentWeekKey();
+
+        if (user.lastResetWeek !== currentWeekKey) {
+            user.weeklyPoints = amount;
+            user.lastResetWeek = currentWeekKey;
+        } else {
+            user.weeklyPoints += amount;
+        }
+
+        user.points += amount;
         user.level = Math.floor(user.points / 1000) + 1;
         await user.save();
 
