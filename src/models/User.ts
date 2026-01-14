@@ -10,6 +10,7 @@ export interface IUser extends Document {
     lastLoginDate?: Date;
     totalLogins: number;
     isAdmin: boolean;
+    completedTopics: string[]; // Slugs of completed topics
     createdAt: Date;
     updatedAt: Date;
 }
@@ -30,7 +31,8 @@ const UserSchema: Schema = new Schema(
                 achievementId: { type: Schema.Types.ObjectId, ref: 'Achievement' },
                 earnedAt: { type: Date, default: Date.now }
             }
-        ]
+        ],
+        completedTopics: [{ type: String }] // Array of topic slugs
     },
     {
         timestamps: true

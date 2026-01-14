@@ -8,6 +8,10 @@ import { ChevronLeft, CheckCircle2, Lightbulb, Info, Share2, Printer, Target } f
 import Discussion from "@/components/learn/Discussion";
 import { getTopics } from "@/lib/services/topicService";
 import TaskTracking from "@/components/tasks/TaskTracking";
+import { auth } from "@/lib/auth";
+import User from "@/models/User";
+import connectDB from "@/lib/db/mongodb";
+import CompleteTopicButton from "@/components/learn/CompleteTopicButton";
 
 export const revalidate = 3600; // Revalidate every hour
 
@@ -24,6 +28,14 @@ export default async function TopicDetailPage({ params }: { params: Promise<{ sl
 
     if (!topic) {
         notFound();
+    }
+
+    const session = await auth();
+    let initialCompleted = false;
+    if (session?.user?.email) {
+        await connectDB();
+        const user = await User.findOne({ email: session.user.email }).lean();
+        initialCompleted = user?.completedTopics?.includes(slug) || false;
     }
 
     return (
@@ -112,6 +124,9 @@ export default async function TopicDetailPage({ params }: { params: Promise<{ sl
                         </div>
                     </aside>
                 </div>
+
+                {/* Completion Section */}
+                <CompleteTopicButton topicSlug={slug} initialCompleted={initialCompleted} />
 
                 {/* Discussion Section */}
                 <div className="pt-12 border-t border-white/5">

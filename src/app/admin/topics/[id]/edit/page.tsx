@@ -3,7 +3,7 @@
 import React, { useState, useEffect, use } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { ChevronLeft, Save, Lightbulb, Target, Bot, Trash2 } from 'lucide-react';
+import { ChevronLeft, Save, Lightbulb, Target, Bot, Trash2, ListOrdered, GitBranch } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
@@ -13,6 +13,7 @@ export default function EditTopicPage({ params }: { params: Promise<{ id: string
     const [formData, setFormData] = useState<any>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const [allTopics, setAllTopics] = useState<any[]>([]);
     const { toast } = useToast();
     const router = useRouter();
 
@@ -31,7 +32,9 @@ export default function EditTopicPage({ params }: { params: Promise<{ id: string
                         coreConcept: data.content.coreConcept,
                         keyPoints: data.content.keyPoints || [''],
                         example: data.content.example,
-                        thoughtQuestion: data.content.thoughtQuestion
+                        thoughtQuestion: data.content.thoughtQuestion,
+                        prerequisites: data.prerequisites || [],
+                        order: data.order || 0
                     });
                 } else {
                     toast({ title: "Lỗi", description: "Không thể tải bài học", variant: "destructive" });
@@ -39,11 +42,18 @@ export default function EditTopicPage({ params }: { params: Promise<{ id: string
                 }
             } catch (error) {
                 toast({ title: "Lỗi", description: "Có lỗi xảy ra", variant: "destructive" });
-            } finally {
-                setIsLoading(false);
             }
         };
-        fetchTopic();
+
+        const fetchAllTopics = async () => {
+            const res = await fetch('/api/admin/topics');
+            if (res.ok) {
+                const data = await res.json();
+                setAllTopics(data.filter((t: any) => t._id !== id));
+            }
+        };
+
+        Promise.all([fetchTopic(), fetchAllTopics()]).then(() => setIsLoading(false));
     }, [id, router, toast]);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -84,7 +94,9 @@ export default function EditTopicPage({ params }: { params: Promise<{ id: string
                         keyPoints: formData.keyPoints.filter((p: string) => p.trim() !== ''),
                         example: formData.example,
                         thoughtQuestion: formData.thoughtQuestion
-                    }
+                    },
+                    prerequisites: formData.prerequisites,
+                    order: formData.order
                 }),
             });
 
@@ -176,6 +188,44 @@ export default function EditTopicPage({ params }: { params: Promise<{ id: string
                                 onChange={handleInputChange}
                                 className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 min-h-[100px]"
                                 required
+                            />
+                        </div>
+
+                        <div className="space-y-3">
+                            <label className="text-xs font-black uppercase text-primary flex items-center gap-2">
+                                <GitBranch className="w-4 h-4" /> Bài học tiên quyết (Locked)
+                            </label>
+                            <div className="grid grid-cols-1 gap-2 max-h-40 overflow-y-auto p-4 glass rounded-2xl border-white/5">
+                                {allTopics.map(topic => (
+                                    <label key={topic._id} className="flex items-center gap-2 text-sm cursor-pointer hover:text-primary transition-colors">
+                                        <input
+                                            type="checkbox"
+                                            checked={formData.prerequisites.includes(topic._id)}
+                                            onChange={(e) => {
+                                                const newPrereqs = e.target.checked
+                                                    ? [...formData.prerequisites, topic._id]
+                                                    : formData.prerequisites.filter((pid: string) => pid !== topic._id);
+                                                setFormData({ ...formData, prerequisites: newPrereqs });
+                                            }}
+                                            className="rounded border-white/10 bg-white/5"
+                                        />
+                                        {topic.title}
+                                    </label>
+                                ))}
+                                {allTopics.length === 0 && <p className="text-xs text-muted-foreground italic">Chưa có bài học nào khác.</p>}
+                            </div>
+                        </div>
+
+                        <div className="space-y-3">
+                            <label className="text-xs font-black uppercase text-secondary flex items-center gap-2">
+                                <ListOrdered className="w-4 h-4" /> Thứ tự hiển thị
+                            </label>
+                            <input
+                                type="number"
+                                name="order"
+                                value={formData.order}
+                                onChange={handleInputChange}
+                                className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 focus:border-secondary outline-none"
                             />
                         </div>
                     </div>

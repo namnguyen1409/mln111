@@ -3,12 +3,24 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ChevronLeft, BookOpen, Clock, ArrowRight } from "lucide-react";
+import { ChevronLeft, BookOpen, Clock, ArrowRight, LayoutGrid, Map as MapIcon, Sparkles } from "lucide-react";
+import LearningPathMap from "@/components/learn/LearningPathMap";
+import { auth } from "@/lib/auth";
+import User from "@/models/User";
+import connectDB from "@/lib/db/mongodb";
 
 export const revalidate = 3600; // Revalidate every hour
 
 export default async function LearnPage() {
     const topics = await getTopics();
+    const session = await auth();
+
+    let completedTopics: string[] = [];
+    if (session?.user?.email) {
+        await connectDB();
+        const user = await User.findOne({ email: session.user.email }).lean();
+        completedTopics = user?.completedTopics || [];
+    }
 
     return (
         <div className="max-w-6xl mx-auto px-4 py-12 animate-fade-in">
@@ -18,63 +30,35 @@ export default async function LearnPage() {
                         <ChevronLeft className="w-4 h-4" /> Trang chủ
                     </Link>
                 </Button>
-                <div className="space-y-2">
-                    <h1 className="text-4xl md:text-5xl font-black tracking-tight">Học nhanh lý thuyết</h1>
-                    <p className="text-muted-foreground text-lg">Tóm tắt các kiến thức cốt lõi, ví dụ thực tế và câu hỏi gợi mở của MLN111.</p>
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+                    <div className="space-y-2">
+                        <div className="flex items-center gap-2 text-primary font-black uppercase tracking-[0.2em] text-[10px]">
+                            <Sparkles className="w-3 h-3" /> Hành trình chinh phục
+                        </div>
+                        <h1 className="text-4xl md:text-6xl font-black tracking-tighter italic uppercase">Cây tri thức</h1>
+                        <p className="text-muted-foreground text-lg max-w-xl">Khám phá các nguyên lý Triết học theo lộ trình khoa học. Hoàn thành bài học để mở khóa kiến thức mới.</p>
+                    </div>
                 </div>
             </header>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {topics.length > 0 ? (
-                    topics.map((topic: any) => (
-                        <Link key={topic.slug} href={`/learn/${topic.slug}`}>
-                            <Card className="h-full glass hover:border-primary/50 transition-all duration-300 flex flex-col group cursor-pointer hover:-translate-y-1">
-                                <CardHeader>
-                                    <div className="flex justify-between items-start mb-2">
-                                        <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20 capitalize font-bold">
-                                            {topic.category.replace('-', ' ')}
-                                        </Badge>
-                                        <BookOpen className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
-                                    </div>
-                                    <CardTitle className="text-xl group-hover:text-primary transition-colors line-clamp-2">{topic.title}</CardTitle>
-                                </CardHeader>
-                                <CardContent className="flex-grow">
-                                    <p className="text-muted-foreground text-sm line-clamp-3 italic">
-                                        "{topic.content.coreConcept}"
-                                    </p>
-                                </CardContent>
-                                <CardFooter className="pt-0 flex justify-between items-center">
-                                    <span className="text-xs text-muted-foreground flex items-center gap-1">
-                                        <Clock className="w-3 h-3" /> 5 phút đọc
-                                    </span>
-                                    <span className="text-primary font-bold text-sm flex items-center gap-1 group-hover:translate-x-1 transition-transform">
-                                        Khám phá <ArrowRight className="w-4 h-4" />
-                                    </span>
-                                </CardFooter>
-                            </Card>
-                        </Link>
-                    ))
-                ) : (
-                    <div className="col-span-full py-20 glass rounded-3xl text-center space-y-6">
-                        <div className="bg-white/5 w-16 h-16 rounded-full flex items-center justify-center mx-auto text-3xl">
-                            🏜️
-                        </div>
-                        <div className="space-y-2">
-                            <h2 className="text-2xl font-bold">Chưa có dữ liệu học tập</h2>
-                            <p className="text-muted-foreground">Vui lòng quay lại trang chủ hoặc thêm bài học mới từ Admin.</p>
-                        </div>
-                        <Button asChild className="neo-shadow rounded-xl font-bold px-8">
-                            <Link href="/">Quay lại trang chủ</Link>
-                        </Button>
-                        {/* Seed data button for demonstration */}
-                        <form action="/api/seed" method="POST">
-                            <Button type="submit" variant="outline" className="ml-4 border-dashed border-primary/50 text-primary hover:bg-primary/5">
-                                Click để nạp dữ liệu mẫu
-                            </Button>
-                        </form>
+            {topics.length > 0 ? (
+                <div className="relative">
+                    <LearningPathMap topics={topics} completedTopics={completedTopics} />
+                </div>
+            ) : (
+                <div className="py-32 text-center glass rounded-[3rem] border-white/5 space-y-8">
+                    <div className="w-24 h-24 bg-white/5 rounded-full flex items-center justify-center mx-auto text-5xl">
+                        🌱
                     </div>
-                )}
-            </div>
+                    <div className="space-y-2">
+                        <h2 className="text-3xl font-black italic uppercase tracking-tighter">Vườn tri thức đang trống</h2>
+                        <p className="text-muted-foreground max-w-sm mx-auto">Vui lòng quay lại sau hoặc truy cập Admin để bắt đầu xây dựng lộ trình học tập.</p>
+                    </div>
+                    <Button asChild className="neo-shadow rounded-2xl h-14 px-8 font-black uppercase italic">
+                        <Link href="/admin/topics">Xây dựng ngay</Link>
+                    </Button>
+                </div>
+            )}
         </div>
     );
 }

@@ -24,6 +24,8 @@ export interface ITopic extends Document {
     | "khac";
 
     customCategory?: string;
+    prerequisites: mongoose.Types.ObjectId[];
+    order: number;
 
     createdAt: Date;
     updatedAt: Date;
@@ -92,6 +94,16 @@ const TopicSchema: Schema = new Schema(
             required: function (this: ITopic) {
                 return this.category === "khac";
             }
+        },
+        prerequisites: [
+            {
+                type: Schema.Types.ObjectId,
+                ref: "Topic"
+            }
+        ],
+        order: {
+            type: Number,
+            default: 0
         }
     },
     {

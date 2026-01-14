@@ -3,7 +3,7 @@ import Topic from "@/models/Topic";
 
 export async function getTopics() {
     await connectDB();
-    const topics = await Topic.find({}).sort({ updatedAt: -1 }).lean();
+    const topics = await Topic.find({}).sort({ order: 1, createdAt: 1 }).populate('prerequisites', 'title slug').lean();
     return JSON.parse(JSON.stringify(topics));
 }
 
