@@ -26,34 +26,32 @@ export default async function QuizPortal() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {quizzes.length > 0 ? (
                     quizzes.map((quiz) => (
-                        <Link key={quiz._id} href={`/quiz/${quiz._id}`}>
-                            <Card className="glass border-white/5 hover:border-primary/50 transition-all duration-500 overflow-hidden group cursor-pointer relative rounded-3xl">
-                                <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                                    <Gamepad2 className="w-24 h-24" />
+                        <Card key={quiz._id} className="glass border-white/5 hover:border-primary/50 transition-all duration-500 overflow-hidden group relative rounded-3xl flex flex-col">
+                            <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                                <Gamepad2 className="w-24 h-24" />
+                            </div>
+                            <CardHeader className="pb-4">
+                                <div className="flex items-center gap-2 text-yellow-400 font-bold mb-2">
+                                    <Star className="w-4 h-4 fill-yellow-400" /> +{quiz.xpReward} XP
                                 </div>
-                                <CardHeader className="pb-4">
-                                    <div className="flex items-center gap-2 text-yellow-400 font-bold mb-2">
-                                        <Star className="w-4 h-4 fill-yellow-400" /> +{quiz.xpReward} XP
-                                    </div>
-                                    <CardTitle className="text-2xl font-bold group-hover:text-primary transition-colors">
-                                        {quiz.title}
-                                    </CardTitle>
-                                    <CardDescription>Click để bắt đầu thi đấu ngay</CardDescription>
-                                </CardHeader>
-                                <CardContent className="space-y-4">
-                                    <Button className="w-full neo-shadow font-bold group-hover:bg-primary transition-colors h-12 rounded-xl">
+                                <CardTitle className="text-2xl font-bold group-hover:text-primary transition-colors">
+                                    {quiz.title}
+                                </CardTitle>
+                                <CardDescription>Thử thách cá nhân</CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-4 flex-grow">
+                                <Button asChild className="w-full neo-shadow font-bold bg-primary hover:bg-primary/90 transition-colors h-12 rounded-xl">
+                                    <Link href={`/quiz/${quiz._id}`}>
                                         Chơi ngay <ArrowRight className="ml-2 w-4 h-4" />
-                                    </Button>
+                                    </Link>
+                                </Button>
 
-                                    {isAdmin && (
-                                        <div className="pt-4 border-t border-white/5 space-y-2">
-                                            <p className="text-[10px] font-black uppercase text-secondary tracking-widest text-center">Chế độ: Đấu trường</p>
-                                            <HostBattleButton quizId={quiz._id} topicSlug={quiz.topicSlug} />
-                                        </div>
-                                    )}
-                                </CardContent>
-                            </Card>
-                        </Link>
+                                <div className="pt-4 border-t border-white/5 space-y-3">
+                                    <p className="text-[10px] font-black uppercase text-secondary tracking-widest text-center">Chế độ: Đấu trường</p>
+                                    <HostBattleButton quizId={quiz._id} topicSlug={quiz.topicSlug} />
+                                </div>
+                            </CardContent>
+                        </Card>
                     ))
                 ) : (
                     <div className="col-span-full py-20 glass rounded-3xl text-center space-y-6">
