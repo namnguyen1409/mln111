@@ -2,10 +2,14 @@ import { getQuizzes } from "@/lib/services/quizService";
 import Link from "next/link";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Trophy, Gamepad2, ArrowRight, Star } from "lucide-react";
+import { Trophy, Gamepad2, ArrowRight, Star, Zap } from "lucide-react";
+import { auth } from "@/lib/auth";
+import HostBattleButton from "@/components/quiz/HostBattleButton";
 
 export default async function QuizPortal() {
     const quizzes = await getQuizzes();
+    const session = await auth();
+    const isAdmin = (session?.user as any)?.isAdmin;
 
     return (
         <div className="max-w-6xl mx-auto px-4 py-12 animate-fade-in space-y-12">
@@ -36,10 +40,17 @@ export default async function QuizPortal() {
                                     </CardTitle>
                                     <CardDescription>Click để bắt đầu thi đấu ngay</CardDescription>
                                 </CardHeader>
-                                <CardContent>
+                                <CardContent className="space-y-4">
                                     <Button className="w-full neo-shadow font-bold group-hover:bg-primary transition-colors h-12 rounded-xl">
                                         Chơi ngay <ArrowRight className="ml-2 w-4 h-4" />
                                     </Button>
+
+                                    {isAdmin && (
+                                        <div className="pt-4 border-t border-white/5 space-y-2">
+                                            <p className="text-[10px] font-black uppercase text-secondary tracking-widest text-center">Chế độ: Đấu trường</p>
+                                            <HostBattleButton quizId={quiz._id} topicSlug={quiz.topicSlug} />
+                                        </div>
+                                    )}
                                 </CardContent>
                             </Card>
                         </Link>

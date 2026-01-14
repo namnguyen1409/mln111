@@ -3,7 +3,8 @@
 import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
-import { ChevronLeft, Plus, Trash2, Edit2, FileText, Search, BookOpen, Layers } from 'lucide-react';
+import { ChevronLeft, Plus, Trash2, Edit2, FileText, Search, BookOpen, Layers, Zap, Loader2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -21,7 +22,9 @@ export default function TopicsListPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState("");
     const [deleteId, setDeleteId] = useState<string | null>(null);
+    const [isCreatingBattle, setIsCreatingBattle] = useState<string | null>(null);
     const { toast } = useToast();
+    const router = useRouter();
 
     useEffect(() => {
         fetchTopics();
@@ -55,6 +58,27 @@ export default function TopicsListPage() {
             }
         } catch (error: any) {
             toast({ title: "Lỗi", description: error.message, variant: "destructive" });
+        }
+    };
+
+    const handleCreateBattle = async (topicId: string, topicSlug: string) => {
+        setIsCreatingBattle(topicId);
+        try {
+            const res = await fetch('/api/battles', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ topicId, topicSlug }),
+            });
+            if (res.ok) {
+                const battle = await res.json();
+                router.push(`/admin/battles/${battle.code}`);
+            } else {
+                throw new Error("Failed to create battle");
+            }
+        } catch (error) {
+            toast({ title: "Lỗi", description: "Không thể tạo trận đấu.", variant: "destructive" });
+        } finally {
+            setIsCreatingBattle(null);
         }
     };
 
@@ -110,6 +134,16 @@ export default function TopicsListPage() {
                                             <Link href={`/admin/topics/${topic._id}/edit`}>
                                                 <Edit2 className="w-4 h-4 text-blue-400" />
                                             </Link>
+                                        </Button>
+
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="h-8 w-8 rounded-full hover:bg-yellow-500/10 text-yellow-500"
+                                            onClick={() => handleCreateBattle(topic._id, topic.slug)}
+                                            disabled={!!isCreatingBattle}
+                                        >
+                                            {isCreatingBattle === topic._id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4" />}
                                         </Button>
 
                                         <Dialog open={deleteId === topic._id} onOpenChange={(open) => setDeleteId(open ? topic._id : null)}>

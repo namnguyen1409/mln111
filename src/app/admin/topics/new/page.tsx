@@ -29,7 +29,13 @@ export default function NewTopicPage() {
         example: '',
         thoughtQuestion: '',
         prerequisites: [] as string[],
-        order: 0
+        order: 0,
+        quizContent: [{
+            question: '',
+            options: ['', '', '', ''],
+            correctAnswer: '',
+            points: 100
+        }]
     });
     const [allTopics, setAllTopics] = useState<any[]>([]);
 
@@ -85,6 +91,28 @@ export default function NewTopicPage() {
         setFormData(prev => ({ ...prev, keyPoints: prev.keyPoints.filter((_, i) => i !== index) }));
     };
 
+    const handleQuizChange = (qIndex: number, field: string, value: any) => {
+        const newQuiz = [...formData.quizContent];
+        if (field.startsWith('option_')) {
+            const optIndex = parseInt(field.split('_')[1]);
+            newQuiz[qIndex].options[optIndex] = value;
+        } else {
+            (newQuiz[qIndex] as any)[field] = value;
+        }
+        setFormData(prev => ({ ...prev, quizContent: newQuiz }));
+    };
+
+    const addQuizQuestion = () => {
+        setFormData(prev => ({
+            ...prev,
+            quizContent: [...prev.quizContent, { question: '', options: ['', '', '', ''], correctAnswer: '', points: 100 }]
+        }));
+    };
+
+    const removeQuizQuestion = (index: number) => {
+        setFormData(prev => ({ ...prev, quizContent: prev.quizContent.filter((_, i) => i !== index) }));
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
@@ -112,7 +140,8 @@ export default function NewTopicPage() {
                         thoughtQuestion: formData.thoughtQuestion
                     },
                     prerequisites: formData.prerequisites,
-                    order: formData.order
+                    order: formData.order,
+                    quizContent: formData.quizContent.filter(q => q.question.trim() !== '')
                 }),
             });
 
@@ -144,7 +173,13 @@ export default function NewTopicPage() {
                 example: data.content?.example || '',
                 thoughtQuestion: data.content?.thoughtQuestion || '',
                 prerequisites: data.prerequisites || [],
-                order: data.order || 0
+                order: data.order || 0,
+                quizContent: data.quizContent || [{
+                    question: '',
+                    options: ['', '', '', ''],
+                    correctAnswer: '',
+                    points: 100
+                }]
             });
             setIsImportModalOpen(false);
             setJsonInput('');
@@ -166,7 +201,15 @@ export default function NewTopicPage() {
     "keyPoints": ["Luận điểm 1", "Luận điểm 2"],
     "example": "Ví dụ thực tế VN",
     "thoughtQuestion": "Câu hỏi gợi mở"
-  }
+  },
+  "quizContent": [
+    {
+      "question": "Câu hỏi multiple choice?",
+      "options": ["A", "B", "C", "D"],
+      "correctAnswer": "Đáp án đúng (phải khớp 1 trong các options)",
+      "points": 100
+    }
+  ]
 }
 Chỉ phản hồi JSON. Chủ đề: [CHỦ ĐỀ]`;
         navigator.clipboard.writeText(prompt);
@@ -385,6 +428,72 @@ Chỉ phản hồi JSON. Chủ đề: [CHỦ ĐỀ]`;
                         />
                     </Card>
                 </div>
+
+                {/* Quiz Questions Section */}
+                <Card className="glass border-white/5 rounded-[2.5rem] p-8 md:p-12 space-y-8">
+                    <div className="flex justify-between items-center border-b border-white/5 pb-6">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-yellow-400/20 rounded-xl flex items-center justify-center">
+                                <HelpCircle className="text-yellow-400 w-6 h-6" />
+                            </div>
+                            <div>
+                                <h2 className="text-xl font-black italic uppercase tracking-tighter">Bộ câu hỏi Quiz (Live Battle)</h2>
+                                <p className="text-xs text-muted-foreground uppercase font-black">Các câu hỏi sẽ được dùng cho tự học và thi đấu lớp học</p>
+                            </div>
+                        </div>
+                        <Button type="button" onClick={addQuizQuestion} variant="outline" className="rounded-xl border-primary/20 bg-primary/5">
+                            + Thêm câu hỏi
+                        </Button>
+                    </div>
+
+                    <div className="space-y-12">
+                        {formData.quizContent.map((quiz, qIdx) => (
+                            <div key={qIdx} className="space-y-6 p-6 glass rounded-3xl border-white/5 relative group">
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    onClick={() => removeQuizQuestion(qIdx)}
+                                    className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-red-500 text-white p-0 hover:bg-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                                >
+                                    <Trash2 className="w-4 h-4" />
+                                </Button>
+
+                                <div className="space-y-3">
+                                    <label className="text-xs font-black uppercase text-primary">Câu hỏi {qIdx + 1}</label>
+                                    <textarea
+                                        value={quiz.question}
+                                        onChange={(e) => handleQuizChange(qIdx, 'question', e.target.value)}
+                                        className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 min-h-[80px]"
+                                        placeholder="Nhập nội dung câu hỏi..."
+                                    />
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {quiz.options.map((opt, oIdx) => (
+                                        <div key={oIdx} className="space-y-2">
+                                            <div className="flex justify-between">
+                                                <label className="text-[10px] font-black uppercase text-muted-foreground">Lựa chọn {String.fromCharCode(65 + oIdx)}</label>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleQuizChange(qIdx, 'correctAnswer', opt)}
+                                                    className={`text-[10px] font-black uppercase px-2 py-0.5 rounded ${quiz.correctAnswer === opt && opt !== '' ? 'bg-green-500 text-white' : 'bg-white/5 text-muted-foreground hover:bg-white/10'}`}
+                                                >
+                                                    Đúng
+                                                </button>
+                                            </div>
+                                            <input
+                                                value={opt}
+                                                onChange={(e) => handleQuizChange(qIdx, `option_${oIdx}`, e.target.value)}
+                                                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm"
+                                                placeholder={`Đáp án ${String.fromCharCode(65 + oIdx)}`}
+                                            />
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </Card>
 
                 <div className="pt-8 flex gap-6">
                     <Button

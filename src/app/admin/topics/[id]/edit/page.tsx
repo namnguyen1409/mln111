@@ -3,7 +3,7 @@
 import React, { useState, useEffect, use } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { ChevronLeft, Save, Lightbulb, Target, Bot, Trash2, ListOrdered, GitBranch } from 'lucide-react';
+import { ChevronLeft, Save, Lightbulb, Target, Bot, Trash2, ListOrdered, GitBranch, HelpCircle } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
@@ -34,7 +34,13 @@ export default function EditTopicPage({ params }: { params: Promise<{ id: string
                         example: data.content.example,
                         thoughtQuestion: data.content.thoughtQuestion,
                         prerequisites: data.prerequisites || [],
-                        order: data.order || 0
+                        order: data.order || 0,
+                        quizContent: data.quizContent || [{
+                            question: '',
+                            options: ['', '', '', ''],
+                            correctAnswer: '',
+                            points: 100
+                        }]
                     });
                 } else {
                     toast({ title: "Lỗi", description: "Không thể tải bài học", variant: "destructive" });
@@ -75,6 +81,28 @@ export default function EditTopicPage({ params }: { params: Promise<{ id: string
         setFormData((prev: any) => ({ ...prev, keyPoints: prev.keyPoints.filter((_: any, i: number) => i !== index) }));
     };
 
+    const handleQuizChange = (qIndex: number, field: string, value: any) => {
+        const newQuiz = [...formData.quizContent];
+        if (field.startsWith('option_')) {
+            const optIndex = parseInt(field.split('_')[1]);
+            newQuiz[qIndex].options[optIndex] = value;
+        } else {
+            (newQuiz[qIndex] as any)[field] = value;
+        }
+        setFormData((prev: any) => ({ ...prev, quizContent: newQuiz }));
+    };
+
+    const addQuizQuestion = () => {
+        setFormData((prev: any) => ({
+            ...prev,
+            quizContent: [...prev.quizContent, { question: '', options: ['', '', '', ''], correctAnswer: '', points: 100 }]
+        }));
+    };
+
+    const removeQuizQuestion = (index: number) => {
+        setFormData((prev: any) => ({ ...prev, quizContent: prev.quizContent.filter((_: any, i: number) => i !== index) }));
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsSubmitting(true);
@@ -96,7 +124,8 @@ export default function EditTopicPage({ params }: { params: Promise<{ id: string
                         thoughtQuestion: formData.thoughtQuestion
                     },
                     prerequisites: formData.prerequisites,
-                    order: formData.order
+                    order: formData.order,
+                    quizContent: formData.quizContent.filter((q: any) => q.question.trim() !== '')
                 }),
             });
 
@@ -298,6 +327,72 @@ export default function EditTopicPage({ params }: { params: Promise<{ id: string
                         />
                     </Card>
                 </div>
+
+                {/* Quiz Questions Section */}
+                <Card className="glass border-white/5 rounded-[2.5rem] p-8 md:p-12 space-y-8">
+                    <div className="flex justify-between items-center border-b border-white/5 pb-6">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-yellow-400/20 rounded-xl flex items-center justify-center">
+                                <HelpCircle className="text-yellow-400 w-6 h-6" />
+                            </div>
+                            <div>
+                                <h2 className="text-xl font-black italic uppercase tracking-tighter">Bộ câu hỏi Quiz (Live Battle)</h2>
+                                <p className="text-xs text-muted-foreground uppercase font-black">Các câu hỏi sẽ được dùng cho tự học và thi đấu lớp học</p>
+                            </div>
+                        </div>
+                        <Button type="button" onClick={addQuizQuestion} variant="outline" className="rounded-xl border-primary/20 bg-primary/5">
+                            + Thêm câu hỏi
+                        </Button>
+                    </div>
+
+                    <div className="space-y-12">
+                        {formData.quizContent.map((quiz: any, qIdx: number) => (
+                            <div key={qIdx} className="space-y-6 p-6 glass rounded-3xl border-white/5 relative group">
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    onClick={() => removeQuizQuestion(qIdx)}
+                                    className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-red-500 text-white p-0 hover:bg-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                                >
+                                    <Trash2 className="w-4 h-4" />
+                                </Button>
+
+                                <div className="space-y-3">
+                                    <label className="text-xs font-black uppercase text-primary">Câu hỏi {qIdx + 1}</label>
+                                    <textarea
+                                        value={quiz.question}
+                                        onChange={(e) => handleQuizChange(qIdx, 'question', e.target.value)}
+                                        className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 min-h-[80px]"
+                                        placeholder="Nhập nội dung câu hỏi..."
+                                    />
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {quiz.options.map((opt: string, oIdx: number) => (
+                                        <div key={oIdx} className="space-y-2">
+                                            <div className="flex justify-between">
+                                                <label className="text-[10px] font-black uppercase text-muted-foreground">Lựa chọn {String.fromCharCode(65 + oIdx)}</label>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleQuizChange(qIdx, 'correctAnswer', opt)}
+                                                    className={`text-[10px] font-black uppercase px-2 py-0.5 rounded ${quiz.correctAnswer === opt && opt !== '' ? 'bg-green-500 text-white' : 'bg-white/5 text-muted-foreground hover:bg-white/10'}`}
+                                                >
+                                                    Đúng
+                                                </button>
+                                            </div>
+                                            <input
+                                                value={opt}
+                                                onChange={(e) => handleQuizChange(qIdx, `option_${oIdx}`, e.target.value)}
+                                                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm"
+                                                placeholder={`Đáp án ${String.fromCharCode(65 + oIdx)}`}
+                                            />
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </Card>
 
                 <div className="pt-8 flex gap-6">
                     <Button

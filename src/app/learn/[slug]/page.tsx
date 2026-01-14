@@ -13,6 +13,8 @@ import User from "@/models/User";
 import connectDB from "@/lib/db/mongodb";
 import CompleteTopicButton from "@/components/learn/CompleteTopicButton";
 import QuickNoteButton from "@/components/notebook/QuickNoteButton";
+import HostBattleButton from "@/components/quiz/HostBattleButton";
+import { Zap } from "lucide-react";
 
 export const revalidate = 3600; // Revalidate every hour
 
@@ -33,10 +35,13 @@ export default async function TopicDetailPage({ params }: { params: Promise<{ sl
 
     const session = await auth();
     let initialCompleted = false;
+    let isAdmin = false;
+
     if (session?.user?.email) {
         await connectDB();
         const user = await User.findOne({ email: session.user.email }).lean();
         initialCompleted = user?.completedTopics?.includes(slug) || false;
+        isAdmin = user?.isAdmin || false;
     }
 
     return (
@@ -56,6 +61,12 @@ export default async function TopicDetailPage({ params }: { params: Promise<{ sl
                             topicTitle={topic.title}
                         />
                         <Button variant="outline" size="icon" className="rounded-full h-12 w-12 border-white/10 hover:bg-white/5"><Share2 className="w-5 h-5" /></Button>
+                        {isAdmin && (
+                            <div className="flex items-center gap-3 glass px-4 py-1.5 rounded-2xl border-secondary/20 bg-secondary/5">
+                                <span className="text-[10px] font-black uppercase text-secondary tracking-widest leading-none">Admin Tools</span>
+                                <HostBattleButton topicId={topic._id.toString()} topicSlug={slug} />
+                            </div>
+                        )}
                     </div>
                 </div>
 

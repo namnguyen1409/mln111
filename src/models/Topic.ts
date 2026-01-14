@@ -26,6 +26,12 @@ export interface ITopic extends Document {
     customCategory?: string;
     prerequisites: mongoose.Types.ObjectId[];
     order: number;
+    quizContent: {
+        question: string;
+        options: string[];
+        correctAnswer: string;
+        points: number;
+    }[];
 
     createdAt: Date;
     updatedAt: Date;
@@ -104,7 +110,13 @@ const TopicSchema: Schema = new Schema(
         order: {
             type: Number,
             default: 0
-        }
+        },
+        quizContent: [{
+            question: { type: String, required: true },
+            options: { type: [String], required: true },
+            correctAnswer: { type: String, required: true },
+            points: { type: Number, default: 100 }
+        }]
     },
     {
         timestamps: true

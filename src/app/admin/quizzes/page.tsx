@@ -3,13 +3,16 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { ChevronLeft, Plus, Trash2, Edit2, Gamepad2, Trophy, ArrowRight } from 'lucide-react';
+import { ChevronLeft, Plus, Trash2, Edit2, Gamepad2, Trophy, ArrowRight, Zap } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
 
 export default function AdminQuizzesPage() {
     const [quizzes, setQuizzes] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [isCreatingBattle, setIsCreatingBattle] = useState<string | null>(null);
+    const router = useRouter();
 
     const fetchQuizzes = async () => {
         try {
@@ -43,6 +46,32 @@ export default function AdminQuizzesPage() {
             }
         } catch (error) {
             toast.error("Lỗi khi xóa");
+        }
+    };
+
+    const handleCreateBattle = async (quiz: any) => {
+        setIsCreatingBattle(quiz._id);
+        try {
+            const res = await fetch('/api/battles', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    quizId: quiz._id,
+                    topicSlug: quiz.topicSlug || 'general'
+                }),
+            });
+
+            if (res.ok) {
+                const battle = await res.json();
+                toast.success("Đã tạo phòng Battle!");
+                router.push(`/admin/battles/${battle.code}`);
+            } else {
+                toast.error("Không thể tạo phòng battle.");
+            }
+        } catch (error) {
+            toast.error("Lỗi kết nối.");
+        } finally {
+            setIsCreatingBattle(null);
         }
     };
 
@@ -104,6 +133,18 @@ export default function AdminQuizzesPage() {
                                         <p className="text-xl font-black text-primary">+{quiz.xpReward}</p>
                                     </div>
                                 </div>
+
+                                <Button
+                                    onClick={() => handleCreateBattle(quiz)}
+                                    disabled={isCreatingBattle === quiz._id}
+                                    className="w-full rounded-2xl h-12 neo-shadow gap-2 italic uppercase font-black"
+                                >
+                                    {isCreatingBattle === quiz._id ? "Đang tạo..." : (
+                                        <>
+                                            <Zap className="w-4 h-4 fill-current text-yellow-400" /> Mở Battle
+                                        </>
+                                    )}
+                                </Button>
                             </CardContent>
                         </Card>
                     ))
