@@ -26,7 +26,7 @@
     --radius: 0.75rem;
 
     /* Custom tokens for components */
-    --bg-card: rgba(255, 255, 255, 0.05);
+    --bg-card: rgba(0, 0, 0, 0.808);
     --border-glass: rgba(255, 255, 255, 0.1);
   }
 }

@@ -230,7 +230,7 @@ export default function MindMap({ data, editable = false, onNodeUpdate }: MindMa
             </motion.div>
 
             <Dialog open={!!selectedNode} onOpenChange={() => setSelectedNode(null)}>
-                <DialogContent className="glass border-white/10 sm:max-w-xl rounded-[2.5rem] overflow-hidden">
+                <DialogContent className="glass border-white/80 sm:max-w-xl rounded-[2.5rem] overflow-hidden">
                     <DialogHeader className="space-y-4">
                         <div className="flex items-center gap-4">
                             <div
