@@ -24,7 +24,13 @@ const UserSchema: Schema = new Schema(
         streak: { type: Number, default: 0 },
         lastLoginDate: { type: Date },
         totalLogins: { type: Number, default: 0 },
-        isAdmin: { type: Boolean, default: false }
+        isAdmin: { type: Boolean, default: false },
+        achievements: [
+            {
+                achievementId: { type: Schema.Types.ObjectId, ref: 'Achievement' },
+                earnedAt: { type: Date, default: Date.now }
+            }
+        ]
     },
     {
         timestamps: true

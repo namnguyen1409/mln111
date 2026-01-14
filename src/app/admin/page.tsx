@@ -2,7 +2,7 @@ import { auth, isAdmin } from "@/lib/auth";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Settings, Plus, LayoutDashboard, FileText, HelpCircle, ChevronLeft, LogIn, User, ShieldAlert, Brain, Gamepad2, Zap } from "lucide-react";
+import { Settings, Plus, LayoutDashboard, FileText, HelpCircle, ChevronLeft, LogIn, User, ShieldAlert, Brain, Gamepad2, Zap, Trophy, Medal } from "lucide-react";
 import { redirect } from "next/navigation";
 
 export default async function AdminDashboard() {
@@ -146,6 +146,23 @@ export default async function AdminDashboard() {
                         <Button asChild className="w-full h-12 neo-shadow rounded-xl font-bold bg-white/5 hover:bg-white/10 border-white/10">
                             <Link href="/admin/tasks">
                                 <Zap className="mr-2 w-4 h-4" /> Cấu hình nhiệm vụ
+                            </Link>
+                        </Button>
+                    </CardContent>
+                </Card>
+
+                {/* Achievements Admin */}
+                <Card className="glass border-white/5 rounded-3xl overflow-hidden hover:border-yellow-400/50 transition-all">
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-3">
+                            <Trophy className="text-yellow-400" /> Quản lý Huy hiệu
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                        <p className="text-sm text-muted-foreground">Thiết kế các danh hiệu vinh danh và cột mốc cho sinh viên.</p>
+                        <Button asChild className="w-full h-12 neo-shadow rounded-xl font-bold bg-white/5 hover:bg-white/10 border-white/10">
+                            <Link href="/admin/achievements">
+                                <Medal className="mr-2 w-4 h-4" /> Cấu hình vinh danh
                             </Link>
                         </Button>
                     </CardContent>

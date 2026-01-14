@@ -10,6 +10,7 @@ import { signOut } from "next-auth/react";
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import DailyTasksWidget from '@/components/tasks/DailyTasksWidget';
+import AchievementBadgesWidget from '@/components/profile/AchievementBadgesWidget';
 
 export default function ProfilePage() {
     const { data: session, status } = useSession();
@@ -138,6 +139,9 @@ export default function ProfilePage() {
 
                     {/* Daily Tasks Widget */}
                     <DailyTasksWidget />
+
+                    {/* Achievement Badges Widget */}
+                    <AchievementBadgesWidget />
                 </div>
 
                 {/* Achievements/Stats Widget */}

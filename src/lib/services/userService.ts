@@ -80,6 +80,13 @@ export async function updateDailyStreak(email: string) {
     user.level = Math.floor(user.points / 1000) + 1;
 
     await user.save();
+
+    // Check for achievements
+    const { checkAndAwardAchievements } = await import("./achievementService");
+    await checkAndAwardAchievements(email, 'streak', user.streak);
+    await checkAndAwardAchievements(email, 'points', user.points);
+    await checkAndAwardAchievements(email, 'level', user.level);
+
     return user;
 }
 
@@ -93,6 +100,11 @@ export async function addPoints(email: string, points: number) {
     if (user) {
         user.level = Math.floor(user.points / 1000) + 1;
         await user.save();
+
+        // Check for achievements
+        const { checkAndAwardAchievements } = await import("./achievementService");
+        await checkAndAwardAchievements(email, 'points', user.points);
+        await checkAndAwardAchievements(email, 'level', user.level);
     }
     return user;
 }
