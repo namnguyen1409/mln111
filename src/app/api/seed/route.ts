@@ -158,7 +158,7 @@ export async function POST() {
         await MindMap.deleteMany({});
         await MindMap.insertMany(seedMindMaps);
 
-        return NextResponse.redirect(new URL('/learn', 'http://localhost:3000'));
+        return NextResponse.redirect(new URL('/learn', process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'));
     } catch (error: any) {
         return NextResponse.json({ error: "Seed failed", details: error.message }, { status: 500 });
     }

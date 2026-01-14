@@ -12,7 +12,7 @@ export const revalidate = 3600; // Revalidate every hour
 
 export async function generateStaticParams() {
     const topics = await getTopics();
-    return topics.map((topic) => ({
+    return topics.map((topic: any) => ({
         slug: topic.slug,
     }));
 }

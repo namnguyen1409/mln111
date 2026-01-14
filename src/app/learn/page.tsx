@@ -26,7 +26,7 @@ export default async function LearnPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {topics.length > 0 ? (
-                    topics.map((topic) => (
+                    topics.map((topic: any) => (
                         <Link key={topic.slug} href={`/learn/${topic.slug}`}>
                             <Card className="h-full glass hover:border-primary/50 transition-all duration-300 flex flex-col group cursor-pointer hover:-translate-y-1">
                                 <CardHeader>
