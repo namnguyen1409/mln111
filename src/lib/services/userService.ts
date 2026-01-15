@@ -3,6 +3,14 @@ import User, { IUser } from "@/models/User";
 import PointHistory from "@/models/PointHistory";
 import { format, startOfWeek } from "date-fns";
 
+// Simple in-memory cache for leaderboard
+let leaderboardCache: {
+    data: any;
+    timestamp: number;
+    mode: 'total' | 'weekly';
+} | null = null;
+const CACHE_TTL = 60 * 1000; // 60 seconds
+
 export async function getUserByEmail(email: string) {
     await connectDB();
     const user = await User.findOne({ email });
@@ -37,12 +45,26 @@ export async function getAllUsers() {
 }
 
 export async function getLeaderboard(limit: number = 50, mode: 'total' | 'weekly' = 'total') {
+    const now = Date.now();
+    if (leaderboardCache && leaderboardCache.mode === mode && (now - leaderboardCache.timestamp < CACHE_TTL)) {
+        return leaderboardCache.data;
+    }
+
     await connectDB();
     const sortBy = mode === 'weekly' ? { weeklyPoints: -1 } : { points: -1 };
     const users = await User.find({})
+        .select('name image points weeklyPoints level isAdmin')
         .sort(sortBy as any)
         .limit(limit)
         .lean();
+
+    // Update cache
+    leaderboardCache = {
+        data: users,
+        timestamp: now,
+        mode
+    };
+
     return users;
 }
 

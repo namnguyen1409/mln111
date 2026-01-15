@@ -45,5 +45,6 @@ const UserSchema: Schema = new Schema(
 
 // Indexing for leaderboard performance
 UserSchema.index({ points: -1 });
+UserSchema.index({ weeklyPoints: -1 });
 
 export default mongoose.models.User || mongoose.model<IUser>("User", UserSchema);

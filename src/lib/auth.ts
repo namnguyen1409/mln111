@@ -1,6 +1,6 @@
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
-import { updateDailyStreak } from "@/lib/services/userService";
+import { updateDailyStreak, getUserByEmail } from "@/lib/services/userService";
 import User from "@/models/User";
 import connectDB from "@/lib/db/mongodb";
 
@@ -38,8 +38,8 @@ export const {
         },
         async session({ session, token }) {
             if (session.user && token.email) {
-                await connectDB();
-                let dbUser = await User.findOne({ email: token.email }).lean();
+                // getUserByEmail already handles weekly reset and level sync
+                const dbUser = await getUserByEmail(token.email as string);
 
                 if (dbUser) {
                     // Check-in logic: if last login was not today, update streak
@@ -51,15 +51,19 @@ export const {
                     if (!lastLogin || today.getTime() !== lastLogin.getTime()) {
                         const updatedUser = await updateDailyStreak(token.email as string);
                         if (updatedUser) {
-                            dbUser = updatedUser.toObject ? updatedUser.toObject() : updatedUser;
+                            const finalUser = updatedUser.toObject ? updatedUser.toObject() : updatedUser;
+                            (session.user as any).points = finalUser.points;
+                            (session.user as any).level = finalUser.level;
+                            (session.user as any).streak = finalUser.streak;
                         }
+                    } else {
+                        (session.user as any).points = dbUser.points;
+                        (session.user as any).level = dbUser.level;
+                        (session.user as any).streak = dbUser.streak;
                     }
 
                     (session.user as any).id = dbUser._id;
                     (session.user as any).isAdmin = dbUser.isAdmin;
-                    (session.user as any).points = dbUser.points;
-                    (session.user as any).level = dbUser.level;
-                    (session.user as any).streak = dbUser.streak;
                 }
             }
             return session;
