@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import DailyTasksWidget from '@/components/tasks/DailyTasksWidget';
 import AchievementBadgesWidget from '@/components/profile/AchievementBadgesWidget';
+import PointHistory from '@/components/profile/PointHistory';
 
 export default function ProfilePage() {
     const { data: session, status } = useSession();
@@ -142,6 +143,9 @@ export default function ProfilePage() {
 
                     {/* Achievement Badges Widget */}
                     <AchievementBadgesWidget />
+
+                    {/* Point History Log */}
+                    <PointHistory />
                 </div>
 
                 {/* Achievements/Stats Widget */}

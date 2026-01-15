@@ -1,5 +1,6 @@
 import connectDB from "@/lib/db/mongodb";
 import User from "@/models/User";
+import PointHistory from "@/models/PointHistory";
 
 export async function getUserByEmail(email: string) {
     await connectDB();
@@ -93,6 +94,17 @@ export async function updateDailyStreak(email: string) {
 
     await user.save();
 
+    // Log Point History
+    if (pointsToAdd > 0) {
+        await PointHistory.create({
+            userEmail: email,
+            amount: pointsToAdd,
+            reason: "Điểm danh hàng ngày",
+            type: 'add',
+            metadata: { streak: user.streak }
+        });
+    }
+
     // Check for achievements
     const { checkAndAwardAchievements } = await import("./achievementService");
     await checkAndAwardAchievements(email, 'streak', user.streak);
@@ -105,7 +117,7 @@ export async function updateDailyStreak(email: string) {
 /**
  * Cấp điểm EXP cho người dùng
  */
-export async function addPoints(email: string, amount: number) {
+export async function addPoints(email: string, amount: number, reason: string = "Hoàn thành bài học", metadata?: any) {
     await connectDB();
     const user = await User.findOne({ email });
 
@@ -123,6 +135,15 @@ export async function addPoints(email: string, amount: number) {
         user.points += amount;
         user.level = Math.floor(user.points / 1000) + 1;
         await user.save();
+
+        // Log Point History
+        await PointHistory.create({
+            userEmail: email,
+            amount: amount,
+            reason: reason,
+            type: 'add',
+            metadata: metadata
+        });
 
         // Check for achievements
         const { checkAndAwardAchievements } = await import("./achievementService");
@@ -145,7 +166,7 @@ export async function toggleAdmin(email: string) {
 /**
  * Khấu trừ điểm EXP (dùng cho đặt cược)
  */
-export async function deductPoints(email: string, amount: number) {
+export async function deductPoints(email: string, amount: number, reason: string = "Đặt cược trận đấu", metadata?: any) {
     await connectDB();
     const user = await User.findOne({ email });
 
@@ -155,6 +176,15 @@ export async function deductPoints(email: string, amount: number) {
         user.points -= amount;
         user.level = Math.floor(user.points / 1000) + 1;
         await user.save();
+
+        // Log Point History
+        await PointHistory.create({
+            userEmail: email,
+            amount: amount,
+            reason: reason,
+            type: 'deduct',
+            metadata: metadata
+        });
     }
     return user;
 }

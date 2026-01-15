@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { BookOpen, Brain, Gamepad2, Repeat, Trophy, Sparkles, ChevronRight } from "lucide-react";
 import LeaderboardWidget from "@/components/leaderboard/LeaderboardWidget";
 
+
 export default function Home() {
   return (
     <main className="min-h-screen p-6 md:p-24 flex flex-col items-center justify-center gap-16 max-w-7xl mx-auto">
