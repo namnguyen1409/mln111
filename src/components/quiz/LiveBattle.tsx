@@ -36,36 +36,47 @@ export default function LiveBattle({ code, isHost, userEmail }: LiveBattleProps)
     const [timeLeft, setTimeLeft] = useState<number>(30);
     const { toast } = useToast();
 
-    // Polling interval (3 seconds)
+    // SSE Connection
     useEffect(() => {
-        const fetchStatus = async () => {
-            try {
-                const res = await fetch(`/api/battles/${code}`);
-                if (res.ok) {
-                    const data = await res.json();
-                    setBattle(data);
+        let eventSource: EventSource | null = null;
 
+        const connectSSE = () => {
+            if (eventSource) eventSource.close();
+
+            eventSource = new EventSource(`/api/battles/${code}/stream`);
+
+            eventSource.onmessage = (event) => {
+                try {
+                    const data = JSON.parse(event.data);
+                    setBattle(data);
                     if (data.status !== lastStatus) {
                         setLastStatus(data.status);
                     }
-
-                    // Sync time with server
+                    // Sync time
                     if (data.questionStartTime) {
                         const elapsed = Math.floor((Date.now() - new Date(data.questionStartTime).getTime()) / 1000);
                         const remaining = Math.max(0, (data.timerDuration || 30) - elapsed);
                         setTimeLeft(remaining);
                     }
+                    setLoading(false);
+                } catch (err) {
+                    console.error("Error parsing SSE data:", err);
                 }
-            } catch (error) {
-                console.error("Error polling battle status:", error);
-            } finally {
-                setLoading(false);
-            }
+            };
+
+            eventSource.onerror = (err) => {
+                console.error("SSE connection error, attempting to reconnect...", err);
+                eventSource?.close();
+                // Simple exponential backoff or immediate reconnect
+                setTimeout(connectSSE, 3000);
+            };
         };
 
-        fetchStatus();
-        const interval = setInterval(fetchStatus, 3000);
-        return () => clearInterval(interval);
+        connectSSE();
+
+        return () => {
+            if (eventSource) eventSource.close();
+        };
     }, [code, lastStatus]);
 
     // Local countdown timer
