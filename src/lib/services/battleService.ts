@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import connectDB from "@/lib/db/mongodb";
 import BattleSession from "@/models/BattleSession";
 import Topic from "@/models/Topic";
@@ -45,6 +46,15 @@ export async function joinBattleSession(code: string, user: { email: string; nam
 
 export async function getBattleStatus(code: string) {
     await connectDB();
+
+    // Aggressive model registration check
+    if (!mongoose.models.Topic) {
+        await import("@/models/Topic");
+    }
+    if (!mongoose.models.Quiz) {
+        await import("@/models/Quiz");
+    }
+
     const session = await BattleSession.findOne({ code })
         .populate('topicId')
         .populate('quizId')

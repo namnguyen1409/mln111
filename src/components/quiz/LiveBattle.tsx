@@ -36,23 +36,60 @@ export default function LiveBattle({ code, isHost, userEmail }: LiveBattleProps)
     const [timeLeft, setTimeLeft] = useState<number>(30);
     const { toast } = useToast();
 
-    // SSE Connection
+    // SSE Connection with Polling Fallback
     useEffect(() => {
         let eventSource: EventSource | null = null;
+        let pollingInterval: NodeJS.Timeout | null = null;
+        let sseTimeout: NodeJS.Timeout | null = null;
+        let hasReceivedData = false;
+
+        const startPolling = () => {
+            if (pollingInterval) return;
+            console.log("Starting fallback polling...");
+            const fetchStatus = async () => {
+                try {
+                    const res = await fetch(`/api/battles/${code}`);
+                    if (res.ok) {
+                        const data = await res.json();
+                        setBattle(data);
+                        if (data.status !== lastStatus) setLastStatus(data.status);
+                        if (data.questionStartTime) {
+                            const elapsed = Math.floor((Date.now() - new Date(data.questionStartTime).getTime()) / 1000);
+                            const remaining = Math.max(0, (data.timerDuration || 30) - elapsed);
+                            setTimeLeft(remaining);
+                        }
+                        setLoading(false);
+                    }
+                } catch (error) {
+                    console.error("Polling error:", error);
+                }
+            };
+            fetchStatus();
+            pollingInterval = setInterval(fetchStatus, 3000);
+        };
 
         const connectSSE = () => {
             if (eventSource) eventSource.close();
 
             eventSource = new EventSource(`/api/battles/${code}/stream`);
 
+            // If no data received in 5s, fallback to polling
+            sseTimeout = setTimeout(() => {
+                if (!hasReceivedData) {
+                    console.warn("SSE timed out, falling back to polling");
+                    if (eventSource) eventSource.close();
+                    startPolling();
+                }
+            }, 5000);
+
             eventSource.onmessage = (event) => {
                 try {
+                    hasReceivedData = true;
+                    if (sseTimeout) clearTimeout(sseTimeout);
+
                     const data = JSON.parse(event.data);
                     setBattle(data);
-                    if (data.status !== lastStatus) {
-                        setLastStatus(data.status);
-                    }
-                    // Sync time
+                    if (data.status !== lastStatus) setLastStatus(data.status);
                     if (data.questionStartTime) {
                         const elapsed = Math.floor((Date.now() - new Date(data.questionStartTime).getTime()) / 1000);
                         const remaining = Math.max(0, (data.timerDuration || 30) - elapsed);
@@ -65,10 +102,9 @@ export default function LiveBattle({ code, isHost, userEmail }: LiveBattleProps)
             };
 
             eventSource.onerror = (err) => {
-                console.error("SSE connection error, attempting to reconnect...", err);
+                console.error("SSE connection error, attempting to fallback...", err);
                 eventSource?.close();
-                // Simple exponential backoff or immediate reconnect
-                setTimeout(connectSSE, 3000);
+                startPolling();
             };
         };
 
@@ -76,8 +112,10 @@ export default function LiveBattle({ code, isHost, userEmail }: LiveBattleProps)
 
         return () => {
             if (eventSource) eventSource.close();
+            if (pollingInterval) clearInterval(pollingInterval);
+            if (sseTimeout) clearTimeout(sseTimeout);
         };
-    }, [code, lastStatus]);
+    }, [code]); // Removed lastStatus to prevent unnecessary reconnections
 
     // Local countdown timer
     useEffect(() => {
