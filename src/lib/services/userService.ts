@@ -62,8 +62,13 @@ export async function updateDailyStreak(email: string) {
         lastLogin.setHours(0, 0, 0, 0);
     }
 
+    // Check if user already logged in today
+    if (lastLogin && today.getTime() === lastLogin.getTime()) {
+        return user;
+    }
+
     const diffTime = lastLogin ? today.getTime() - lastLogin.getTime() : null;
-    const diffDays = diffTime ? Math.ceil(diffTime / (1000 * 60 * 60 * 24)) : null;
+    const diffDays = diffTime ? Math.round(diffTime / (1000 * 60 * 60 * 24)) : null;
 
     let pointsToAdd = 0;
 
@@ -74,15 +79,11 @@ export async function updateDailyStreak(email: string) {
     } else if (diffDays === 1) {
         // Sequential day
         user.streak += 1;
-        pointsToAdd = 10 * user.streak; // Progressive reward
-        if (pointsToAdd > 50) pointsToAdd = 50; // Cap at 50 points
-    } else if (diffDays && diffDays > 1) {
-        // Streak broken
+        pointsToAdd = Math.min(10 * user.streak, 50); // Progressive reward capped at 50
+    } else {
+        // Streak broken or same day (diffDays === 0 check handled above, so this is diffDays > 1)
         user.streak = 1;
         pointsToAdd = 10;
-    } else if (diffDays === 0) {
-        // Already logged in today
-        return user;
     }
 
     user.points += pointsToAdd;
@@ -99,7 +100,7 @@ export async function updateDailyStreak(email: string) {
         await PointHistory.create({
             userEmail: email,
             amount: pointsToAdd,
-            reason: "Điểm danh hàng ngày",
+            reason: user.streak > 1 ? `Điểm danh ngày ${user.streak}` : "Điểm danh hàng ngày",
             type: 'add',
             metadata: { streak: user.streak }
         });

@@ -39,8 +39,22 @@ export const {
         async session({ session, token }) {
             if (session.user && token.email) {
                 await connectDB();
-                const dbUser = await User.findOne({ email: token.email }).lean();
+                let dbUser = await User.findOne({ email: token.email }).lean();
+
                 if (dbUser) {
+                    // Check-in logic: if last login was not today, update streak
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    const lastLogin = dbUser.lastLoginDate ? new Date(dbUser.lastLoginDate) : null;
+                    if (lastLogin) lastLogin.setHours(0, 0, 0, 0);
+
+                    if (!lastLogin || today.getTime() !== lastLogin.getTime()) {
+                        const updatedUser = await updateDailyStreak(token.email as string);
+                        if (updatedUser) {
+                            dbUser = updatedUser.toObject ? updatedUser.toObject() : updatedUser;
+                        }
+                    }
+
                     (session.user as any).id = dbUser._id;
                     (session.user as any).isAdmin = dbUser.isAdmin;
                     (session.user as any).points = dbUser.points;
