@@ -2,8 +2,9 @@ import { auth, isAdmin } from "@/lib/auth";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Settings, Plus, LayoutDashboard, FileText, HelpCircle, ChevronLeft, LogIn, User, ShieldAlert, Brain, Gamepad2, Zap, Trophy, Medal } from "lucide-react";
+import { Settings, Plus, LayoutDashboard, FileText, HelpCircle, ChevronLeft, LogIn, User, ShieldAlert, Brain, Gamepad2, Zap, Trophy, Medal, Database } from "lucide-react";
 import { redirect } from "next/navigation";
+import DataManagement from "@/components/admin/DataManagement";
 
 export default async function AdminDashboard() {
     const session = await auth();
@@ -185,19 +186,16 @@ export default async function AdminDashboard() {
                     </CardContent>
                 </Card>
 
-                {/* Analytics & Settings */}
-                <Card className="glass border-white/5 rounded-3xl overflow-hidden hover:border-white/20 transition-all">
+                {/* Analytics & Data Management */}
+                <Card className="glass border-white/5 rounded-3xl overflow-hidden hover:border-white/20 transition-all md:col-span-2">
                     <CardHeader>
                         <CardTitle className="flex items-center gap-3">
-                            <LayoutDashboard className="text-muted-foreground" /> Thống kê & Hệ thống
+                            <Database className="text-muted-foreground" /> Quản trị Dữ liệu & Hệ thống
                         </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-6">
-                        <p className="text-sm text-muted-foreground">Theo dõi tương tác của sinh viên và cấu hình hệ thống.</p>
-                        <div className="grid grid-cols-2 gap-3">
-                            <Button variant="outline" className="rounded-xl border-white/10" disabled>Báo cáo</Button>
-                            <Button variant="outline" className="rounded-xl border-white/10" disabled>Cài đặt</Button>
-                        </div>
+                        <p className="text-sm text-muted-foreground">Sao lưu toàn bộ nội dung bài học, trắc nghiệm và bộ thẻ ghi nhớ hoặc khôi phục từ file JSON.</p>
+                        <DataManagement />
                     </CardContent>
                 </Card>
             </div>
