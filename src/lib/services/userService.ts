@@ -1,10 +1,34 @@
 import connectDB from "@/lib/db/mongodb";
-import User from "@/models/User";
+import User, { IUser } from "@/models/User";
 import PointHistory from "@/models/PointHistory";
+import { format, startOfWeek } from "date-fns";
 
 export async function getUserByEmail(email: string) {
     await connectDB();
-    return User.findOne({ email }).lean();
+    const user = await User.findOne({ email });
+    if (!user) return null;
+
+    // Auto-reset weekly points and sync level if needed
+    const currentWeekKey = getCurrentWeekKey();
+    const newLevel = calculateLevel(user.points);
+    let hasChanges = false;
+
+    if (user.lastResetWeek !== currentWeekKey) {
+        user.weeklyPoints = 0;
+        user.lastResetWeek = currentWeekKey;
+        hasChanges = true;
+    }
+
+    if (user.level !== newLevel) {
+        user.level = newLevel;
+        hasChanges = true;
+    }
+
+    if (hasChanges) {
+        await user.save();
+    }
+
+    return user.toObject ? user.toObject() : user;
 }
 
 export async function getAllUsers() {
@@ -41,12 +65,15 @@ export async function getUserRank(email: string, mode: 'total' | 'weekly' = 'tot
     };
 }
 
+export function calculateLevel(points: number): number {
+    if (points <= 0) return 1;
+    // Formula: Level = floor(sqrt(points / 100)) + 1
+    // Lvl 1: 0, Lvl 2: 100, Lvl 3: 400, Lvl 4: 900, Lvl 10: 8100
+    return Math.floor(Math.sqrt(points / 100)) + 1;
+}
+
 export function getCurrentWeekKey() {
-    const now = new Date();
-    const startOfYear = new Date(now.getFullYear(), 0, 1);
-    const days = Math.floor((now.getTime() - startOfYear.getTime()) / (24 * 60 * 60 * 1000));
-    const weekNumber = Math.ceil((days + startOfYear.getDay() + 1) / 7);
-    return `${now.getFullYear()}-W${weekNumber.toString().padStart(2, '0')}`;
+    return format(startOfWeek(new Date(), { weekStartsOn: 1 }), "yyyy-'W'II");
 }
 
 export async function updateDailyStreak(email: string) {
@@ -90,8 +117,17 @@ export async function updateDailyStreak(email: string) {
     user.lastLoginDate = new Date();
     user.totalLogins += 1;
 
-    // Auto-update level based on points (simple logic: 1 level per 1000 points)
-    user.level = Math.floor(user.points / 1000) + 1;
+    // Update weekly points
+    const currentWeekKey = getCurrentWeekKey();
+    if (user.lastResetWeek !== currentWeekKey) {
+        user.weeklyPoints = pointsToAdd;
+        user.lastResetWeek = currentWeekKey;
+    } else {
+        user.weeklyPoints += pointsToAdd;
+    }
+
+    // Update level
+    user.level = calculateLevel(user.points);
 
     await user.save();
 
@@ -134,7 +170,7 @@ export async function addPoints(email: string, amount: number, reason: string = 
         }
 
         user.points += amount;
-        user.level = Math.floor(user.points / 1000) + 1;
+        user.level = calculateLevel(user.points);
         await user.save();
 
         // Log Point History
@@ -175,7 +211,8 @@ export async function deductPoints(email: string, amount: number, reason: string
         if (user.points < amount) throw new Error("Không đủ điểm để thực hiện");
 
         user.points -= amount;
-        user.level = Math.floor(user.points / 1000) + 1;
+        // Weekly points are NOT deducted to reflect gross effort for the week
+        user.level = calculateLevel(user.points);
         await user.save();
 
         // Log Point History
