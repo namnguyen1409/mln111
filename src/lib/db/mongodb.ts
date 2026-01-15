@@ -1,5 +1,13 @@
 import mongoose from 'mongoose';
 
+// Pre-register models to prevent MissingSchemaError in Next.js Serverless
+import '@/models/User';
+import '@/models/BattleSession';
+import '@/models/Topic';
+import '@/models/Quiz';
+import '@/models/PointHistory';
+import '@/models/Achievement';
+
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://admin:1409@localhost:27018/mln111?authSource=admin';
 
 if (!MONGODB_URI) {

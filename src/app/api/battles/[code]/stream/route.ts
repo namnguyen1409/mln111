@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getBattleStatus } from "@/lib/services/battleService";
-import "@/models/Topic"; // Explicitly register for populate
-import "@/models/Quiz";  // Explicitly register for populate
 
 export const dynamic = 'force-dynamic';
 

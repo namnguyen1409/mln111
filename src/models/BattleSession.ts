@@ -1,4 +1,6 @@
 import mongoose, { Schema, Document } from "mongoose";
+import "./Topic"; // Ensure Topic model is registered
+import "./Quiz";  // Ensure Quiz model is registered
 
 export interface IBattleParticipant {
     email: string;
