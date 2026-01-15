@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useSession } from "next-auth/react";
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
@@ -12,6 +12,7 @@ import Link from 'next/link';
 import DailyTasksWidget from '@/components/tasks/DailyTasksWidget';
 import AchievementBadgesWidget from '@/components/profile/AchievementBadgesWidget';
 import PointHistory from '@/components/profile/PointHistory';
+import ShareButtons from '@/components/ui/ShareButtons';
 
 export default function ProfilePage() {
     const { data: session, status } = useSession();
@@ -69,6 +70,13 @@ export default function ProfilePage() {
                             <Trophy className="w-4 h-4 text-yellow-400" />
                             <span className="font-bold text-sm tracking-tighter uppercase italic">Hạng {currentLevel}</span>
                         </div>
+                    </div>
+
+                    <div className="pt-2 flex justify-center md:justify-start">
+                        <ShareButtons
+                            title={`Hồ sơ Triết gia: ${user.name}`}
+                            text={`Tôi đang đạt cấp độ ${user.level} tại Triết Học PlayHub. Cùng học Triết học Mác-Lênin với tôi nhé! 🚀`}
+                        />
                     </div>
                 </div>
 

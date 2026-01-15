@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://mln111.vercel.app/sitemap.xml

@@ -5,6 +5,12 @@ import { Badge } from "@/components/ui/badge";
 import { Trophy, Medal, Crown, ChevronLeft, ArrowRight } from "lucide-react";
 import { getLeaderboard, getUserRank } from "@/lib/services/userService";
 import { auth } from "@/lib/auth";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+    title: "Bảng xếp hạng Triết gia",
+    description: "Vinh danh những học viên xuất sắc nhất trong cộng đồng Triết Học PlayHub.",
+};
 
 export default async function LeaderboardPage({ searchParams }: { searchParams: Promise<{ mode?: string }> }) {
     const { mode: modeParam } = await searchParams;
@@ -68,7 +74,7 @@ export default async function LeaderboardPage({ searchParams }: { searchParams: 
                         Chưa có dữ liệu xếp hạng. Hãy là người đầu tiên!
                     </div>
                 ) : (
-                    leaderboard.map((user, idx) => (
+                    leaderboard.map((user: any, idx: number) => (
                         <Card key={user._id.toString()} className={`glass border-white/5 overflow-hidden transition-all duration-300 hover:scale-[1.01] ${idx < 3 ? 'border-primary/20 bg-primary/5 shadow-[0_0_30px_rgba(157,0,255,0.05)]' : ''}`}>
                             <CardContent className="p-6 flex items-center gap-6">
                                 <div className="w-12 h-12 flex items-center justify-center shrink-0">
